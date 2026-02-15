@@ -19,12 +19,12 @@ export function TopBar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 border border-success/20">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 border border-success/20">
           <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
           <span className="text-[10px] font-medium text-success">AI Assistant Active</span>
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
           <Sparkles className="w-3 h-3 text-primary" />
           <span className="text-[10px] font-medium text-primary">Agent Mode</span>
         </div>
