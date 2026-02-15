@@ -13,6 +13,7 @@ import {
 import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
 import { CustomerContext } from "./CustomerContext";
+import { InteractionTimeline } from "./InteractionTimeline";
 
 const steps = ["Identify", "Analyze", "Recommend", "Execute", "Confirm"];
 
@@ -140,6 +141,9 @@ export function AgentPanel() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Interaction Timeline */}
+        <InteractionTimeline />
       </div>
     </div>
   );

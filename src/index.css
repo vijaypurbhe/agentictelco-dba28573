@@ -4,6 +4,62 @@
 
 @layer base {
   :root {
+    --background: 210 20% 97%;
+    --foreground: 222 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 20% 12%;
+
+    --primary: 210 100% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 222 20% 20%;
+
+    --muted: 210 15% 93%;
+    --muted-foreground: 215 15% 46%;
+
+    --accent: 25 95% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 60% 38%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 210 100% 45%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 210 15% 96%;
+    --sidebar-foreground: 222 20% 20%;
+    --sidebar-primary: 210 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 15% 93%;
+    --sidebar-accent-foreground: 222 20% 20%;
+    --sidebar-border: 214 20% 88%;
+    --sidebar-ring: 210 100% 45%;
+
+    --glass: 0 0% 100%;
+    --glass-border: 214 20% 90%;
+    --glow-primary: 210 100% 45%;
+    --glow-accent: 25 95% 50%;
+    --gradient-hero: linear-gradient(135deg, hsl(210 100% 45% / 0.08), hsl(25 95% 50% / 0.05));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 15% 98%));
+    --shadow-glow: 0 0 40px -10px hsl(210 100% 45% / 0.15);
+    --shadow-card: 0 1px 8px -2px hsl(222 20% 12% / 0.08);
+  }
+
+  .dark {
     --background: 222 20% 7%;
     --foreground: 210 20% 95%;
 
@@ -38,8 +94,6 @@
     --input: 222 14% 20%;
     --ring: 210 100% 56%;
 
-    --radius: 0.75rem;
-
     --sidebar-background: 222 18% 9%;
     --sidebar-foreground: 210 20% 85%;
     --sidebar-primary: 210 100% 56%;
@@ -49,7 +103,6 @@
     --sidebar-border: 222 14% 18%;
     --sidebar-ring: 210 100% 56%;
 
-    /* Custom tokens */
     --glass: 222 18% 13%;
     --glass-border: 222 14% 22%;
     --glow-primary: 210 100% 56%;

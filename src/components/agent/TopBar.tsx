@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles, Radio } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function TopBar() {
   return (
@@ -27,6 +28,7 @@ export function TopBar() {
           <Sparkles className="w-3 h-3 text-primary" />
           <span className="text-[10px] font-medium text-primary">Agent Mode</span>
         </div>
+        <ThemeToggle />
       </div>
     </motion.header>
   );
