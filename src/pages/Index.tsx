@@ -1,20 +1,28 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, LayoutDashboard } from "lucide-react";
 import { TopBar } from "@/components/agent/TopBar";
 import { ConversationPanel, ConversationPanelHandle } from "@/components/agent/ConversationPanel";
 import { AgentPanel } from "@/components/agent/AgentPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CustomerData, TimelineEvent, CustomerUpdate, DEFAULT_CUSTOMER, DEFAULT_TIMELINE } from "@/types/customer";
 
 const Index = () => {
   const conversationRef = useRef<ConversationPanelHandle>(null);
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<"chat" | "agent">("chat");
+  const [customer, setCustomer] = useState<CustomerData>(DEFAULT_CUSTOMER);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
 
   const handleActionClick = (prompt: string) => {
     conversationRef.current?.sendMessage(prompt);
     if (isMobile) setActiveTab("chat");
   };
+
+  const handleCustomerUpdate = useCallback((update: CustomerUpdate) => {
+    setCustomer(update.customer);
+    setTimeline(update.timeline);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
@@ -23,10 +31,10 @@ const Index = () => {
       {/* Desktop: side-by-side */}
       <div className="hidden md:flex flex-1 overflow-hidden">
         <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
-          <ConversationPanel ref={conversationRef} />
+          <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
         </div>
         <div className="flex-1 flex flex-col">
-          <AgentPanel onActionClick={handleActionClick} />
+          <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
         </div>
       </div>
 
@@ -43,7 +51,7 @@ const Index = () => {
                 transition={{ duration: 0.15 }}
                 className="absolute inset-0"
               >
-                <ConversationPanel ref={conversationRef} />
+                <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
               </motion.div>
             ) : (
               <motion.div
@@ -54,7 +62,7 @@ const Index = () => {
                 transition={{ duration: 0.15 }}
                 className="absolute inset-0"
               >
-                <AgentPanel onActionClick={handleActionClick} />
+                <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
               </motion.div>
             )}
           </AnimatePresence>

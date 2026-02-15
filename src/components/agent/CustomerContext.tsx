@@ -1,26 +1,17 @@
 import { motion } from "framer-motion";
 import { User, Phone, Signal, Calendar, TrendingUp, Shield } from "lucide-react";
+import { CustomerData } from "@/types/customer";
 
-const customer = {
-  name: "Sarah Mitchell",
-  phone: "(555) 234-8901",
-  accountId: "WLS-2847391",
-  plan: "Unlimited Basic",
-  tenure: "3 years, 2 months",
-  monthlySpend: "$75.00",
-  dataUsage: "28.4 GB / 35 GB",
-  deviceCount: 3,
-  riskScore: "Low",
-  lastInteraction: "Plan inquiry - 12 days ago",
-  arpu: "$75.00",
-  ltv: "$2,850",
-};
+interface CustomerContextProps {
+  customer: CustomerData;
+}
 
-export function CustomerContext() {
+export function CustomerContext({ customer }: CustomerContextProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
+      key={customer.accountId}
       className="glass-panel p-4 space-y-3"
     >
       <div className="flex items-center justify-between">
@@ -53,7 +44,7 @@ export function CustomerContext() {
           {customer.dataUsage}
         </p>
         <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
-          <div className="h-full w-[81%] rounded-full bg-primary/80" />
+          <div className="h-full rounded-full bg-primary/80" style={{ width: `${customer.dataPercent}%` }} />
         </div>
       </div>
     </motion.div>

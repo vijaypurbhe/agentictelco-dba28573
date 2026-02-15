@@ -3,29 +3,64 @@ import { motion } from "framer-motion";
 import { Send, Mic, MessageCircle, Loader2 } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { useToast } from "@/hooks/use-toast";
+import { CustomerData, CustomerUpdate } from "@/types/customer";
 
 type Msg = { role: "user" | "assistant" | "system"; content: string; timestamp: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-chat`;
 
-const initialMessages: Msg[] = [
-  {
-    role: "system",
-    content: "Connected to Sarah Mitchell (WLS-2847391). Customer is on Unlimited Basic plan. High data usage detected — potential upsell opportunity.",
-    timestamp: "10:32 AM",
-  },
-];
+function parseCustomerUpdate(content: string): { update: CustomerUpdate | null; cleanContent: string } {
+  const regex = /<customer_update>\s*([\s\S]*?)\s*<\/customer_update>/;
+  const match = content.match(regex);
+  if (!match) return { update: null, cleanContent: content };
+  try {
+    const parsed = JSON.parse(match[1]);
+    if (parsed.customer && parsed.timeline) {
+      return { update: parsed as CustomerUpdate, cleanContent: content.replace(regex, "").trim() };
+    }
+  } catch { /* ignore parse errors */ }
+  return { update: null, cleanContent: content };
+}
 
 export interface ConversationPanelHandle {
   sendMessage: (text: string) => void;
 }
 
-export const ConversationPanel = forwardRef<ConversationPanelHandle>((_props, ref) => {
-  const [messages, setMessages] = useState<Msg[]>(initialMessages);
+interface ConversationPanelProps {
+  customer: CustomerData;
+  onCustomerUpdate: (update: CustomerUpdate) => void;
+}
+
+export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
+  ({ customer, onCustomerUpdate }, ref) => {
+  const [messages, setMessages] = useState<Msg[]>([
+    {
+      role: "system",
+      content: `Connected to ${customer.name} (${customer.accountId}). Customer is on ${customer.plan} plan. High data usage detected — potential upsell opportunity.`,
+      timestamp: "10:32 AM",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const customerUpdateApplied = useRef(false);
+
+  // Update system message when customer changes externally
+  useEffect(() => {
+    setMessages((prev) => {
+      const newSystem: Msg = {
+        role: "system",
+        content: `Connected to ${customer.name} (${customer.accountId}). Customer is on ${customer.plan} plan.`,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+      // Replace first system message
+      if (prev[0]?.role === "system") {
+        return [newSystem, ...prev.slice(1)];
+      }
+      return [newSystem, ...prev];
+    });
+  }, [customer.accountId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -38,6 +73,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle>((_props, re
     setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
+    customerUpdateApplied.current = false;
 
     const apiMessages = updatedMessages
       .filter((m) => m.role !== "system")
@@ -52,7 +88,10 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle>((_props, re
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          customerContext: customer,
+        }),
       });
 
       if (!resp.ok) {
@@ -67,13 +106,21 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle>((_props, re
       let textBuffer = "";
 
       const upsertAssistant = (content: string) => {
+        // Try to parse and strip customer_update from displayed content
+        const { update, cleanContent } = parseCustomerUpdate(content);
+        if (update && !customerUpdateApplied.current) {
+          customerUpdateApplied.current = true;
+          onCustomerUpdate(update);
+        }
+        const displayContent = cleanContent || content;
+
         const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         setMessages((prev) => {
           const last = prev[prev.length - 1];
           if (last?.role === "assistant") {
-            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content, timestamp: t } : m));
+            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: displayContent, timestamp: t } : m));
           }
-          return [...prev, { role: "assistant" as const, content, timestamp: t }];
+          return [...prev, { role: "assistant" as const, content: displayContent, timestamp: t }];
         });
       };
 
@@ -121,7 +168,6 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle>((_props, re
     sendToAI(input, messages);
   };
 
-  // Expose sendMessage to parent via ref
   useImperativeHandle(ref, () => ({
     sendMessage: (text: string) => {
       if (!isLoading) {

@@ -14,6 +14,7 @@ import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
 import { CustomerContext } from "./CustomerContext";
 import { InteractionTimeline } from "./InteractionTimeline";
+import { CustomerData, TimelineEvent } from "@/types/customer";
 
 const steps = ["Identify", "Analyze", "Recommend", "Execute", "Confirm"];
 
@@ -27,55 +28,21 @@ const actionPrompts: Record<string, string> = {
 };
 
 const actions = [
-  {
-    icon: TrendingUp,
-    title: "Plan Upgrade",
-    description: "Upgrade to Unlimited Premium — 5G, 50GB hotspot, HD streaming. +$10/mo ARPU lift.",
-    tag: "Upsell",
-    tagColor: "accent" as const,
-  },
-  {
-    icon: Zap,
-    title: "Add-On Bundle",
-    description: "Device protection + cloud storage bundle. Cross-sell opportunity at $8/mo.",
-    tag: "Cross-sell",
-    tagColor: "primary" as const,
-  },
-  {
-    icon: Gift,
-    title: "Loyalty Reward",
-    description: "Apply 3-year tenure reward: free streaming subscription for 6 months.",
-    tag: "Retention",
-    tagColor: "success" as const,
-  },
-  {
-    icon: Smartphone,
-    title: "Device Trade-In",
-    description: "Eligible for device upgrade with $200 trade-in credit. Extends contract 24mo.",
-    tag: "Revenue",
-    tagColor: "warning" as const,
-  },
-  {
-    icon: Wifi,
-    title: "Home Internet Bundle",
-    description: "Add home 5G internet for $25/mo. Household convergence strategy.",
-    tag: "Cross-sell",
-    tagColor: "primary" as const,
-  },
-  {
-    icon: Shield,
-    title: "Premium Support",
-    description: "Add priority support tier. Reduces churn by 40% for high-value accounts.",
-    tag: "Retention",
-    tagColor: "success" as const,
-  },
+  { icon: TrendingUp, title: "Plan Upgrade", description: "Upgrade to Unlimited Premium — 5G, 50GB hotspot, HD streaming. +$10/mo ARPU lift.", tag: "Upsell", tagColor: "accent" as const },
+  { icon: Zap, title: "Add-On Bundle", description: "Device protection + cloud storage bundle. Cross-sell opportunity at $8/mo.", tag: "Cross-sell", tagColor: "primary" as const },
+  { icon: Gift, title: "Loyalty Reward", description: "Apply 3-year tenure reward: free streaming subscription for 6 months.", tag: "Retention", tagColor: "success" as const },
+  { icon: Smartphone, title: "Device Trade-In", description: "Eligible for device upgrade with $200 trade-in credit. Extends contract 24mo.", tag: "Revenue", tagColor: "warning" as const },
+  { icon: Wifi, title: "Home Internet Bundle", description: "Add home 5G internet for $25/mo. Household convergence strategy.", tag: "Cross-sell", tagColor: "primary" as const },
+  { icon: Shield, title: "Premium Support", description: "Add priority support tier. Reduces churn by 40% for high-value accounts.", tag: "Retention", tagColor: "success" as const },
 ];
 
 interface AgentPanelProps {
   onActionClick?: (prompt: string) => void;
+  customer: CustomerData;
+  timeline: TimelineEvent[];
 }
 
-export function AgentPanel({ onActionClick }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
@@ -109,7 +76,7 @@ export function AgentPanel({ onActionClick }: AgentPanelProps) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
-        <CustomerContext />
+        <CustomerContext customer={customer} />
 
         {/* Agent Recommendation Banner */}
         <motion.div
@@ -130,12 +97,7 @@ export function AgentPanel({ onActionClick }: AgentPanelProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <AnimatePresence>
             {actions.map((action, i) => (
-              <ActionCard
-                key={action.title}
-                {...action}
-                delay={i}
-                onClick={() => handleAction(action.title)}
-              />
+              <ActionCard key={action.title} {...action} delay={i} onClick={() => handleAction(action.title)} />
             ))}
           </AnimatePresence>
         </div>
@@ -143,24 +105,15 @@ export function AgentPanel({ onActionClick }: AgentPanelProps) {
         {/* Selected Action Feedback */}
         <AnimatePresence>
           {selectedAction && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="glass-panel p-3 border-success/30"
-            >
-              <p className="text-xs text-success font-medium">
-                ✓ Agent initiated: {selectedAction}
-              </p>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                AI is generating recommendations in the conversation panel...
-              </p>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-panel p-3 border-success/30">
+              <p className="text-xs text-success font-medium">✓ Agent initiated: {selectedAction}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">AI is generating recommendations in the conversation panel...</p>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Interaction Timeline */}
-        <InteractionTimeline />
+        <InteractionTimeline events={timeline} />
       </div>
     </div>
   );
