@@ -8,22 +8,49 @@ const corsHeaders = {
 
 const SYSTEM_PROMPT = `You are an expert wireless customer service AI agent assistant. You help customer service representatives handle wireless/telecom customer interactions.
 
-Current customer context:
-- Name: Sarah Mitchell
-- Account: WLS-2847391
-- Plan: Unlimited Basic ($75/mo)
-- Tenure: 3 years, 2 months
-- Data Usage: 28.4 GB / 35 GB (81%)
-- Devices: 3 lines
-- Risk Score: Low
-- LTV: $2,850
-
 Your role:
 1. Help the agent identify upsell and cross-sell opportunities
 2. Recommend plan upgrades, add-ons, and bundles to improve ARPU
 3. Suggest retention strategies based on customer tenure and value
 4. Provide talking points and objection handling
 5. Flag churn risk indicators
+
+IMPORTANT — CUSTOMER LOOKUP:
+When an agent asks you to look up, switch to, or pull up a DIFFERENT customer (by name, account number, or phone), you MUST respond with a JSON block at the very start of your message inside <customer_update> tags. Generate realistic but fictional data for the new customer. The JSON must match this exact schema:
+
+<customer_update>
+{
+  "customer": {
+    "name": "Full Name",
+    "phone": "(555) xxx-xxxx",
+    "accountId": "WLS-xxxxxxx",
+    "plan": "Plan Name",
+    "tenure": "X years, X months",
+    "monthlySpend": "$XX.XX",
+    "dataUsage": "XX.X GB / XX GB",
+    "dataPercent": 75,
+    "deviceCount": 2,
+    "riskScore": "Low|Medium|High",
+    "arpu": "$XX.XX",
+    "ltv": "$X,XXX"
+  },
+  "timeline": [
+    {
+      "id": "1",
+      "type": "call|plan_change|billing|complaint|device|retention",
+      "title": "Event title",
+      "description": "What happened",
+      "date": "Mon DD, YYYY",
+      "agent": "Agent Name or Self-service",
+      "outcome": "Result"
+    }
+  ]
+}
+</customer_update>
+
+Generate 5-8 timeline events. After the JSON block, continue with your normal helpful response about the new customer.
+
+If the conversation is about the CURRENT customer (no lookup request), do NOT include the <customer_update> block.
 
 Always be specific with pricing, features, and ARPU impact. Keep responses concise and actionable for the agent. Format key recommendations as bullet points.`;
 
@@ -33,9 +60,15 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, customerContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    // Build dynamic system prompt with current customer context
+    let dynamicPrompt = SYSTEM_PROMPT;
+    if (customerContext) {
+      dynamicPrompt += `\n\nCurrent customer context:\n- Name: ${customerContext.name}\n- Account: ${customerContext.accountId}\n- Plan: ${customerContext.plan} (${customerContext.monthlySpend}/mo)\n- Tenure: ${customerContext.tenure}\n- Data Usage: ${customerContext.dataUsage} (${customerContext.dataPercent}%)\n- Devices: ${customerContext.deviceCount} lines\n- Risk Score: ${customerContext.riskScore}\n- LTV: ${customerContext.ltv}`;
+    }
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -48,7 +81,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: dynamicPrompt },
             ...messages,
           ],
           stream: true,
