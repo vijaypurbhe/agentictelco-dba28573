@@ -17,6 +17,15 @@ import { InteractionTimeline } from "./InteractionTimeline";
 
 const steps = ["Identify", "Analyze", "Recommend", "Execute", "Confirm"];
 
+const actionPrompts: Record<string, string> = {
+  "Plan Upgrade": "The customer wants to explore a plan upgrade. Recommend the best upgrade from Unlimited Basic, explain the benefits, pricing difference, ARPU impact, and provide talking points to handle price objections.",
+  "Add-On Bundle": "Recommend a device protection + cloud storage cross-sell bundle for this customer. Include pricing, value proposition, and how to position it based on their device count and tenure.",
+  "Loyalty Reward": "This is a 3-year tenure customer. What loyalty rewards can we apply? Suggest the best retention offer including free streaming subscriptions or bill credits, and explain the ROI.",
+  "Device Trade-In": "Customer may be eligible for a device trade-in. Provide details on trade-in credit value, new device options, contract extension terms, and how to position the upgrade.",
+  "Home Internet Bundle": "Explore a home 5G internet cross-sell for this household. Provide the bundle pricing, convergence discount, and talking points about combining wireless and home internet.",
+  "Premium Support": "Recommend adding premium support tier for this high-value customer. Explain the benefits, churn reduction impact, and how to position it as a value-add rather than an upsell.",
+};
+
 const actions = [
   {
     icon: TrendingUp,
@@ -62,13 +71,21 @@ const actions = [
   },
 ];
 
-export function AgentPanel() {
+interface AgentPanelProps {
+  onActionClick?: (prompt: string) => void;
+}
+
+export function AgentPanel({ onActionClick }: AgentPanelProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleAction = (title: string) => {
     setSelectedAction(title);
     setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+    const prompt = actionPrompts[title];
+    if (prompt && onActionClick) {
+      onActionClick(prompt);
+    }
   };
 
   return (
@@ -136,7 +153,7 @@ export function AgentPanel() {
                 ✓ Agent initiated: {selectedAction}
               </p>
               <p className="text-[10px] text-muted-foreground mt-1">
-                Processing recommendation... The system will update the customer's account upon confirmation.
+                AI is generating recommendations in the conversation panel...
               </p>
             </motion.div>
           )}

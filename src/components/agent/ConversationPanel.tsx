@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
 import { motion } from "framer-motion";
 import { Send, Mic, MessageCircle, Loader2 } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
@@ -16,7 +16,11 @@ const initialMessages: Msg[] = [
   },
 ];
 
-export function ConversationPanel() {
+export interface ConversationPanelHandle {
+  sendMessage: (text: string) => void;
+}
+
+export const ConversationPanel = forwardRef<ConversationPanelHandle>((_props, ref) => {
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,16 +31,15 @@ export function ConversationPanel() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendToAI = async (text: string, currentMessages: Msg[]) => {
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const userMsg: Msg = { role: "user", content: input, timestamp: now };
-    setMessages((prev) => [...prev, userMsg]);
+    const userMsg: Msg = { role: "user", content: text, timestamp: now };
+    const updatedMessages = [...currentMessages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
-    // Build message history for API (exclude timestamps, system messages stay)
-    const apiMessages = [...messages, userMsg]
+    const apiMessages = updatedMessages
       .filter((m) => m.role !== "system")
       .map((m) => ({ role: m.role, content: m.content }));
 
@@ -113,6 +116,20 @@ export function ConversationPanel() {
     }
   };
 
+  const handleSend = () => {
+    if (!input.trim() || isLoading) return;
+    sendToAI(input, messages);
+  };
+
+  // Expose sendMessage to parent via ref
+  useImperativeHandle(ref, () => ({
+    sendMessage: (text: string) => {
+      if (!isLoading) {
+        sendToAI(text, messages);
+      }
+    },
+  }));
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -183,4 +200,6 @@ export function ConversationPanel() {
       </div>
     </div>
   );
-}
+});
+
+ConversationPanel.displayName = "ConversationPanel";

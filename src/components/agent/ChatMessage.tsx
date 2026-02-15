@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Bot, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatMessageProps {
   role: "user" | "assistant" | "system";
@@ -35,7 +37,13 @@ export function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
               : "bg-primary text-primary-foreground rounded-tr-sm"
           }`}
         >
-          {content}
+          {isAgent ? (
+            <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-headings:text-foreground prose-strong:text-foreground prose-td:py-1 prose-th:py-1 prose-table:text-xs">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            </div>
+          ) : (
+            content
+          )}
         </div>
         {timestamp && (
           <p className="text-[10px] text-muted-foreground mt-1 px-1">{timestamp}</p>
