@@ -127,7 +127,7 @@ export function AgentPanel({ onActionClick }: AgentPanelProps) {
         </motion.div>
 
         {/* Action Cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <AnimatePresence>
             {actions.map((action, i) => (
               <ActionCard
