@@ -89,9 +89,13 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
-        <AnimatePresence mode="wait">
-          {selectedAction ? (
-            <motion.div key={`quickselect-${selectedAction}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        {/* Customer context is always visible */}
+        <CustomerContext customer={customer} />
+
+        {/* Quick-select options appear below customer info when an action is active */}
+        <AnimatePresence>
+          {selectedAction && (
+            <motion.div key={`quickselect-${selectedAction}`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
               <QuickSelectCard
                 actionTitle={selectedAction}
                 onSelect={(prompt) => {
@@ -99,10 +103,6 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
                   if (onActionClick) onActionClick(prompt);
                 }}
               />
-            </motion.div>
-          ) : (
-            <motion.div key="customer-context" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <CustomerContext customer={customer} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -122,6 +122,10 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
                 currentStep={currentStep}
                 customer={customer}
                 onBack={handleBack}
+                onNextStep={(prompt) => {
+                  setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+                  if (onActionClick) onActionClick(prompt);
+                }}
               />
             </motion.div>
           ) : (
