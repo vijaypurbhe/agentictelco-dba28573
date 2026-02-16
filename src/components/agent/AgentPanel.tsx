@@ -14,6 +14,7 @@ import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
 import { CustomerContext } from "./CustomerContext";
 import { InteractionTimeline } from "./InteractionTimeline";
+import { DynamicActionContent } from "./DynamicActionContent";
 import { CustomerData, TimelineEvent } from "@/types/customer";
 
 const steps = ["Identify", "Analyze", "Recommend", "Execute", "Confirm"];
@@ -43,16 +44,27 @@ interface AgentPanelProps {
 }
 
 export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleAction = (title: string) => {
+    // Reset step if switching to a different action
+    if (selectedAction !== title) {
+      setCurrentStep(1); // Start at step 1 (Identify complete, now on Analyze)
+    } else {
+      setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+    }
+    setSelectedAction(title);
+
     const prompt = actionPrompts[title];
     if (prompt && onActionClick) {
-      setSelectedAction(title);
-      setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
       onActionClick(prompt);
     }
+  };
+
+  const handleBack = () => {
+    setSelectedAction(null);
+    setCurrentStep(0);
   };
 
   return (
@@ -78,36 +90,53 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
         <CustomerContext customer={customer} />
 
-        {/* Agent Recommendation Banner */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="gradient-hero rounded-xl p-4 border border-primary/20"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <h3 className="font-semibold text-sm text-foreground">AI Agent Recommendations</h3>
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Based on usage patterns, tenure, and predictive models, the following actions are ranked by expected ARPU impact and retention probability.
-          </p>
-        </motion.div>
+        <AnimatePresence mode="wait">
+          {selectedAction ? (
+            /* Dynamic contextual content for selected action */
+            <motion.div
+              key={`dynamic-${selectedAction}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <DynamicActionContent
+                actionTitle={selectedAction}
+                currentStep={currentStep}
+                customer={customer}
+                onBack={handleBack}
+              />
+            </motion.div>
+          ) : (
+            /* Default: Action Cards Grid */
+            <motion.div
+              key="action-cards"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Agent Recommendation Banner */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="gradient-hero rounded-xl p-4 border border-primary/20 mb-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <h3 className="font-semibold text-sm text-foreground">AI Agent Recommendations</h3>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Based on usage patterns, tenure, and predictive models, the following actions are ranked by expected ARPU impact and retention probability.
+                </p>
+              </motion.div>
 
-        {/* Action Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <AnimatePresence>
-            {actions.map((action, i) => (
-              <ActionCard key={action.title} {...action} delay={i} onClick={() => handleAction(action.title)} />
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* Selected Action Feedback */}
-        <AnimatePresence>
-          {selectedAction && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-panel p-3 border-success/30">
-              <p className="text-xs text-success font-medium">✓ Agent initiated: {selectedAction}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">AI is generating recommendations in the conversation panel...</p>
+              {/* Action Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {actions.map((action, i) => (
+                  <ActionCard key={action.title} {...action} delay={i} onClick={() => handleAction(action.title)} />
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
