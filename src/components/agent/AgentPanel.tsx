@@ -13,6 +13,7 @@ import {
 import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
 import { CustomerContext } from "./CustomerContext";
+import { QuickSelectCard } from "./QuickSelectCard";
 import { InteractionTimeline } from "./InteractionTimeline";
 import { DynamicActionContent } from "./DynamicActionContent";
 import { CustomerData, TimelineEvent } from "@/types/customer";
@@ -88,7 +89,23 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
-        <CustomerContext customer={customer} />
+        <AnimatePresence mode="wait">
+          {selectedAction ? (
+            <motion.div key={`quickselect-${selectedAction}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <QuickSelectCard
+                actionTitle={selectedAction}
+                onSelect={(prompt) => {
+                  setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+                  if (onActionClick) onActionClick(prompt);
+                }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div key="customer-context" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <CustomerContext customer={customer} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence mode="wait">
           {selectedAction ? (
