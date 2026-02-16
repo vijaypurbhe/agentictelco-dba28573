@@ -47,10 +47,10 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleAction = (title: string) => {
-    setSelectedAction(title);
-    setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
     const prompt = actionPrompts[title];
     if (prompt && onActionClick) {
+      setSelectedAction(title);
+      setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
       onActionClick(prompt);
     }
   };
