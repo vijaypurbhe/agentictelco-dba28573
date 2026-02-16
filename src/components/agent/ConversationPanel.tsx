@@ -45,6 +45,10 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const customerUpdateApplied = useRef(false);
+  const messagesRef = useRef(messages);
+  const isLoadingRef = useRef(isLoading);
+  messagesRef.current = messages;
+  isLoadingRef.current = isLoading;
 
   // Update system message when customer changes externally
   useEffect(() => {
@@ -66,6 +70,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  const sendToAIRef = useRef<(text: string, msgs: Msg[]) => Promise<void>>(null!);
   const sendToAI = async (text: string, currentMessages: Msg[]) => {
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const userMsg: Msg = { role: "user", content: text, timestamp: now };
@@ -162,6 +167,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
       setIsLoading(false);
     }
   };
+  sendToAIRef.current = sendToAI;
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
@@ -170,11 +176,11 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
 
   useImperativeHandle(ref, () => ({
     sendMessage: (text: string) => {
-      if (!isLoading) {
-        sendToAI(text, messages);
+      if (!isLoadingRef.current) {
+        sendToAIRef.current(text, messagesRef.current);
       }
     },
-  }));
+  }), []);
 
   return (
     <div className="flex flex-col h-full">

@@ -1,5 +1,4 @@
 import { useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, LayoutDashboard } from "lucide-react";
 import { TopBar } from "@/components/agent/TopBar";
 import { ConversationPanel, ConversationPanelHandle } from "@/components/agent/ConversationPanel";
@@ -28,68 +27,51 @@ const Index = () => {
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <TopBar />
 
-      {/* Desktop: side-by-side */}
-      <div className="hidden md:flex flex-1 overflow-hidden">
-        <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
-          <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
+      {!isMobile ? (
+        /* Desktop: side-by-side */
+        <div className="flex flex-1 overflow-hidden">
+          <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
+            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
+          </div>
+          <div className="flex-1 flex flex-col">
+            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
+          </div>
         </div>
-        <div className="flex-1 flex flex-col">
-          <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
-        </div>
-      </div>
+      ) : (
+        /* Mobile/Tablet: tab switching — both panels always mounted */
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex-1 overflow-hidden relative">
+            <div className={`absolute inset-0 ${activeTab === "chat" ? "" : "invisible"}`}>
+              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
+            </div>
+            <div className={`absolute inset-0 ${activeTab === "agent" ? "" : "invisible"}`}>
+              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
+            </div>
+          </div>
 
-      {/* Mobile/Tablet: tab switching */}
-      <div className="flex md:hidden flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-hidden relative">
-          <AnimatePresence mode="wait">
-            {activeTab === "chat" ? (
-              <motion.div
-                key="chat"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.15 }}
-                className="absolute inset-0"
-              >
-                <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="agent"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.15 }}
-                className="absolute inset-0"
-              >
-                <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Bottom tab bar */}
+          <div className="border-t border-border/50 bg-card/80 backdrop-blur-xl flex">
+            <button
+              onClick={() => setActiveTab("chat")}
+              className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
+                activeTab === "chat" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Conversation</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("agent")}
+              className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
+                activeTab === "agent" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Agent Panel</span>
+            </button>
+          </div>
         </div>
-
-        {/* Bottom tab bar */}
-        <div className="border-t border-border/50 bg-card/80 backdrop-blur-xl flex">
-          <button
-            onClick={() => setActiveTab("chat")}
-            className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
-              activeTab === "chat" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Conversation</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("agent")}
-            className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
-              activeTab === "agent" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Agent Panel</span>
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
