@@ -23,6 +23,7 @@ interface DynamicActionContentProps {
   currentStep: number;
   customer: CustomerData;
   onBack: () => void;
+  onNextStep?: (prompt: string) => void;
 }
 
 type ActionStepData = {
@@ -680,10 +681,66 @@ function getStepsForAction(actionTitle: string, customer: CustomerData): ActionS
 }
 
 // --- Main Component ---
-export function DynamicActionContent({ actionTitle, currentStep, customer, onBack }: DynamicActionContentProps) {
+const nextStepPrompts: Record<string, string[]> = {
+  "Plan Upgrade": [
+    "Proceed to analyze the customer's usage patterns and identify the best upgrade path.",
+    "Based on the analysis, recommend the optimal plan upgrade with pricing details.",
+    "The customer has agreed. Execute the plan upgrade now and process the billing change.",
+    "Confirm the upgrade is complete. Summarize what was changed and the impact.",
+    "",
+  ],
+  "Add-On Bundle": [
+    "Analyze the customer's current add-ons and identify cross-sell bundle opportunities.",
+    "Recommend the best protection bundle based on device count and usage.",
+    "The customer wants to proceed. Activate the bundle and process billing.",
+    "Confirm bundle activation. Summarize coverage and next steps.",
+    "",
+  ],
+  "Loyalty Reward": [
+    "Analyze this customer's churn risk and loyalty reward eligibility.",
+    "Recommend the best retention reward package for this tenure level.",
+    "Apply the selected loyalty reward now and activate all benefits.",
+    "Confirm all rewards are active. Summarize what was applied and retention impact.",
+    "",
+  ],
+  "Device Trade-In": [
+    "Assess the customer's current device and calculate trade-in value.",
+    "Recommend the best new device with trade-in credit and financing options.",
+    "Process the trade-in and new device order with financing.",
+    "Confirm the trade-in is complete. Summarize device, credit, and delivery details.",
+    "",
+  ],
+  "Home Internet Bundle": [
+    "Analyze the customer's location and home internet eligibility.",
+    "Recommend the best home internet plan with convergence discount.",
+    "Process the home internet order and schedule installation.",
+    "Confirm the home internet bundle is active. Summarize plan and installation details.",
+    "",
+  ],
+  "Premium Support": [
+    "Analyze the customer's support history and tier eligibility.",
+    "Recommend the best premium support tier based on account value.",
+    "Activate the premium support upgrade immediately.",
+    "Confirm premium support is active. Summarize new support experience.",
+    "",
+  ],
+};
+
+const nextStepLabels = [
+  "Analyze Customer →",
+  "Get Recommendation →",
+  "Execute Action →",
+  "Confirm & Complete →",
+  "",
+];
+
+export function DynamicActionContent({ actionTitle, currentStep, customer, onBack, onNextStep }: DynamicActionContentProps) {
   const steps = getStepsForAction(actionTitle, customer);
   const stepData = steps[currentStep] || steps[0];
   const ActionIcon = actionIcons[actionTitle] || TrendingUp;
+  const nextPrompt = nextStepPrompts[actionTitle]?.[currentStep] || "";
+  const nextLabel = nextStepLabels[currentStep] || "";
+  const isLastStep = currentStep >= steps.length - 1;
 
   return (
     <div className="space-y-4">
@@ -722,6 +779,31 @@ export function DynamicActionContent({ actionTitle, currentStep, customer, onBac
           {stepData.content}
         </motion.div>
       </AnimatePresence>
+
+      {/* Next Step Action Button */}
+      {!isLastStep && nextPrompt && onNextStep && (
+        <motion.button
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          onClick={() => onNextStep(nextPrompt)}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all"
+        >
+          {nextLabel}
+        </motion.button>
+      )}
+
+      {isLastStep && (
+        <motion.button
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={onBack}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-success/15 text-success text-xs font-semibold hover:bg-success/25 active:scale-[0.98] transition-all"
+        >
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          Done — Back to Recommendations
+        </motion.button>
+      )}
     </div>
   );
 }
