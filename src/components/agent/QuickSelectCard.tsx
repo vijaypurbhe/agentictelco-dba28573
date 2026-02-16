@@ -100,35 +100,32 @@ export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps)
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-2">
         {options.map((option, i) => (
           <motion.button
             key={option.id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.05 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06 }}
             onClick={() => promptBuilder && onSelect(promptBuilder(option))}
-            className={`w-full text-left flex items-center gap-3 p-2.5 rounded-lg transition-all group hover:scale-[1.01] active:scale-[0.99] ${
+            className={`relative flex flex-col items-center text-center gap-1.5 p-3 rounded-xl transition-all group hover:scale-[1.03] active:scale-[0.97] ${
               option.highlight
-                ? "bg-primary/10 border border-primary/25 hover:bg-primary/15"
-                : "bg-muted/40 border border-transparent hover:bg-muted/60 hover:border-border/50"
+                ? "bg-primary/15 border-2 border-primary/40 shadow-md shadow-primary/10"
+                : "bg-muted/50 border border-border/50 hover:bg-muted/70 hover:border-border"
             }`}
           >
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-foreground">{option.label}</span>
-                {option.highlight && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-bold">
-                    Recommended
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-muted-foreground truncate">{option.sublabel}</p>
-            </div>
-            {option.price && (
-              <span className="text-xs font-bold text-primary shrink-0">{option.price}</span>
+            {option.highlight && (
+              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] px-2 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
+                Best
+              </span>
             )}
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground shrink-0 transition-colors" />
+            {option.price && (
+              <span className={`text-sm font-bold mt-1 ${option.highlight ? "text-primary" : "text-foreground"}`}>
+                {option.price}
+              </span>
+            )}
+            <span className="text-[11px] font-semibold text-foreground leading-tight">{option.label}</span>
+            <p className="text-[9px] text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
           </motion.button>
         ))}
       </div>
