@@ -17,8 +17,6 @@ import {
   Star,
   Receipt,
   Power,
-  AlertTriangle,
-  CreditCard,
   PhoneCall,
 } from "lucide-react";
 import { CustomerData } from "@/types/customer";

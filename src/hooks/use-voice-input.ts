@@ -14,7 +14,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const SpeechRecognition =
     typeof window !== "undefined"
