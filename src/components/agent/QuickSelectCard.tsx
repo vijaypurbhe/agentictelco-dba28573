@@ -6,7 +6,9 @@ import {
   Smartphone,
   Wifi,
   Shield,
-  ChevronRight,
+  Receipt,
+  Power,
+  Users,
 } from "lucide-react";
 
 interface QuickOption {
@@ -53,6 +55,21 @@ const actionOptions: Record<string, QuickOption[]> = {
     { id: "dedicated", label: "Dedicated Specialist", sublabel: "Named rep, proactive monitoring", price: "$12/mo" },
     { id: "team-support", label: "Family Support Plan", sublabel: "Priority for all lines on account", price: "$15/mo" },
   ],
+  "Billing Dispute": [
+    { id: "partial-credit", label: "Partial Credit", sublabel: "Apply proportional credit for disputed charges", price: "-$25", highlight: true },
+    { id: "full-reversal", label: "Full Reversal", sublabel: "Reverse entire disputed charge amount", price: "-$78" },
+    { id: "payment-plan", label: "Payment Plan", sublabel: "Split disputed balance over 3 billing cycles", price: "$26/mo" },
+  ],
+  "Account Suspend/Reactivate": [
+    { id: "reactivate-now", label: "Reactivate Now", sublabel: "Full service restoration with past-due payment", price: "Pay balance", highlight: true },
+    { id: "payment-arrangement", label: "Payment Arrangement", sublabel: "Restore service with 3-month payment plan", price: "3 installments" },
+    { id: "partial-restore", label: "Partial Restore", sublabel: "Enable incoming calls only, outgoing blocked", price: "No payment" },
+  ],
+  "Multi-Line Management": [
+    { id: "add-line", label: "Add New Line", sublabel: "New number with device financing available", price: "+$35/mo", highlight: true },
+    { id: "remove-line", label: "Remove Line", sublabel: "Cancel line, keep number eligible for port-out", price: "-$35/mo" },
+    { id: "transfer-number", label: "Transfer Number", sublabel: "Port-in from another carrier, keep number", price: "$0 fee" },
+  ],
 };
 
 const actionIcons: Record<string, React.ElementType> = {
@@ -62,6 +79,9 @@ const actionIcons: Record<string, React.ElementType> = {
   "Device Trade-In": Smartphone,
   "Home Internet Bundle": Wifi,
   "Premium Support": Shield,
+  "Billing Dispute": Receipt,
+  "Account Suspend/Reactivate": Power,
+  "Multi-Line Management": Users,
 };
 
 const selectPrompts: Record<string, (option: QuickOption) => string> = {
@@ -77,6 +97,12 @@ const selectPrompts: Record<string, (option: QuickOption) => string> = {
     `The customer wants to add ${o.label} home internet at ${o.price}. Details: ${o.sublabel}. Process the order with convergence discount and confirm installation details.`,
   "Premium Support": (o) =>
     `Upgrade the customer to ${o.label} at ${o.price}. Features: ${o.sublabel}. Activate immediately and confirm the new support experience.`,
+  "Billing Dispute": (o) =>
+    `The customer wants to resolve billing dispute via ${o.label}. Details: ${o.sublabel}. Value: ${o.price}. Process the resolution and confirm the adjustment on the next billing cycle.`,
+  "Account Suspend/Reactivate": (o) =>
+    `Process account action: ${o.label}. Details: ${o.sublabel}. Terms: ${o.price}. Execute the reactivation/arrangement and confirm service restoration timeline.`,
+  "Multi-Line Management": (o) =>
+    `Process multi-line action: ${o.label}. Details: ${o.sublabel}. Cost: ${o.price}. Execute the line change and confirm updated account details.`,
 };
 
 export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps) {
