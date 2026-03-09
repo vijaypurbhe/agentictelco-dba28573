@@ -9,6 +9,9 @@ import {
   Smartphone,
   Wifi,
   BarChart3,
+  Receipt,
+  Power,
+  Users,
 } from "lucide-react";
 import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
@@ -27,6 +30,9 @@ const actionPrompts: Record<string, string> = {
   "Device Trade-In": "Customer may be eligible for a device trade-in. Provide details on trade-in credit value, new device options, contract extension terms, and how to position the upgrade.",
   "Home Internet Bundle": "Explore a home 5G internet cross-sell for this household. Provide the bundle pricing, convergence discount, and talking points about combining wireless and home internet.",
   "Premium Support": "Recommend adding premium support tier for this high-value customer. Explain the benefits, churn reduction impact, and how to position it as a value-add rather than an upsell.",
+  "Billing Dispute": "The customer has a billing dispute. Review the account for recent charges, identify discrepancies, and recommend the best resolution — partial credit, full reversal, or payment arrangement.",
+  "Account Suspend/Reactivate": "The customer's account is suspended or needs reactivation. Review the suspension reason, outstanding balance, and recommend the best path to restore service — immediate reactivation, payment arrangement, or partial restore.",
+  "Multi-Line Management": "The customer needs to manage lines on their account. Review current lines, pricing, and recommend the best action — add a new line, remove a line, or transfer a number from another carrier.",
 };
 
 const actions = [
@@ -36,6 +42,9 @@ const actions = [
   { icon: Smartphone, title: "Device Trade-In", description: "Eligible for device upgrade with $200 trade-in credit. Extends contract 24mo.", tag: "Revenue", tagColor: "warning" as const },
   { icon: Wifi, title: "Home Internet Bundle", description: "Add home 5G internet for $25/mo. Household convergence strategy.", tag: "Cross-sell", tagColor: "primary" as const },
   { icon: Shield, title: "Premium Support", description: "Add priority support tier. Reduces churn by 40% for high-value accounts.", tag: "Retention", tagColor: "success" as const },
+  { icon: Receipt, title: "Billing Dispute", description: "Resolve billing discrepancies. Issue credits, reversals, or payment plans.", tag: "Support", tagColor: "warning" as const },
+  { icon: Power, title: "Account Suspend/Reactivate", description: "Manage account suspension, reactivation, and payment arrangements.", tag: "Account", tagColor: "accent" as const },
+  { icon: Users, title: "Multi-Line Management", description: "Add, remove, or transfer lines. Family plan optimization.", tag: "Account", tagColor: "primary" as const },
 ];
 
 interface AgentPanelProps {
@@ -49,9 +58,8 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleAction = (title: string) => {
-    // Reset step if switching to a different action
     if (selectedAction !== title) {
-      setCurrentStep(1); // Start at step 1 (Identify complete, now on Analyze)
+      setCurrentStep(1);
     } else {
       setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
     }
@@ -89,10 +97,8 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
-        {/* Customer context is always visible */}
         <CustomerContext customer={customer} />
 
-        {/* Quick-select options appear below customer info when an action is active */}
         <AnimatePresence>
           {selectedAction && (
             <motion.div key={`quickselect-${selectedAction}`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
@@ -109,7 +115,6 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
 
         <AnimatePresence mode="wait">
           {selectedAction ? (
-            /* Dynamic contextual content for selected action */
             <motion.div
               key={`dynamic-${selectedAction}`}
               initial={{ opacity: 0, x: 20 }}
@@ -129,7 +134,6 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
               />
             </motion.div>
           ) : (
-            /* Default: Action Cards Grid */
             <motion.div
               key="action-cards"
               initial={{ opacity: 0, x: -20 }}
@@ -137,7 +141,6 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
             >
-              {/* Agent Recommendation Banner */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -152,8 +155,7 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
                 </p>
               </motion.div>
 
-              {/* Action Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {actions.map((action, i) => (
                   <ActionCard key={action.title} {...action} delay={i} onClick={() => handleAction(action.title)} />
                 ))}
@@ -162,7 +164,6 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
           )}
         </AnimatePresence>
 
-        {/* Interaction Timeline */}
         <InteractionTimeline events={timeline} />
       </div>
     </div>

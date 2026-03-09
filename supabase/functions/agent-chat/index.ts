@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are an expert wireless customer service AI agent assistant. You help customer service representatives handle wireless/telecom customer interactions.
+const SYSTEM_PROMPT = `You are an expert wireless customer service AI agent assistant for AT&T. You help customer service representatives handle wireless/telecom customer interactions.
 
 Your role:
 1. Help the agent identify upsell and cross-sell opportunities
@@ -14,6 +14,9 @@ Your role:
 3. Suggest retention strategies based on customer tenure and value
 4. Provide talking points and objection handling
 5. Flag churn risk indicators
+6. Resolve billing disputes with credits, reversals, or payment plans
+7. Handle account suspensions and reactivations with payment arrangements
+8. Manage multi-line operations — add, remove, or transfer lines
 
 IMPORTANT — CUSTOMER LOOKUP:
 When an agent asks you to look up, switch to, or pull up a DIFFERENT customer (by name, account number, or phone), you MUST respond with a JSON block at the very start of your message inside <customer_update> tags. Generate realistic but fictional data for the new customer. The JSON must match this exact schema:
@@ -52,6 +55,30 @@ Generate 5-8 timeline events. After the JSON block, continue with your normal he
 
 If the conversation is about the CURRENT customer (no lookup request), do NOT include the <customer_update> block.
 
+BILLING DISPUTE HANDLING:
+When handling billing disputes:
+- Review the charge type, amount, and validity
+- Check customer's dispute history (first-time vs. repeat)
+- Consider tenure and LTV when recommending credit amounts
+- Options: partial goodwill credit, full reversal, or payment plan
+- Always suggest a prevention measure (e.g., add-on to avoid future charges)
+
+ACCOUNT SUSPENSION & REACTIVATION:
+When handling suspended accounts:
+- Check the suspension reason (non-payment, fraud, voluntary)
+- Review outstanding balance and payment history
+- Options: immediate reactivation (full payment), payment arrangement (installments), partial restore (incoming calls only)
+- Always recommend auto-pay enrollment to prevent future suspensions
+- Calculate the retention value vs. write-off risk
+
+MULTI-LINE MANAGEMENT:
+When managing lines on an account:
+- Review current line count and per-line pricing
+- Calculate multi-line discount tier impacts
+- Options: add new line (with device financing), remove line (with number port-out eligibility), transfer/port-in number
+- Highlight how adding lines reduces per-line cost for all existing lines
+- Flag any contract implications for line removal
+
 Always be specific with pricing, features, and ARPU impact. Keep responses concise and actionable for the agent. Format key recommendations as bullet points.`;
 
 serve(async (req) => {
@@ -64,7 +91,6 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Build dynamic system prompt with current customer context
     let dynamicPrompt = SYSTEM_PROMPT;
     if (customerContext) {
       dynamicPrompt += `\n\nCurrent customer context:\n- Name: ${customerContext.name}\n- Account: ${customerContext.accountId}\n- Plan: ${customerContext.plan} (${customerContext.monthlySpend}/mo)\n- Tenure: ${customerContext.tenure}\n- Data Usage: ${customerContext.dataUsage} (${customerContext.dataPercent}%)\n- Devices: ${customerContext.deviceCount} lines\n- Risk Score: ${customerContext.riskScore}\n- LTV: ${customerContext.ltv}`;

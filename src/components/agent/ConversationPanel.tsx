@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
-import { motion } from "framer-motion";
-import { Send, Mic, MessageCircle, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Mic, MicOff, MessageCircle, Loader2 } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { useToast } from "@/hooks/use-toast";
+import { useVoiceInput } from "@/hooks/use-voice-input";
 import { CustomerData, CustomerUpdate } from "@/types/customer";
 
 type Msg = { role: "user" | "assistant" | "system"; content: string; timestamp: string };
@@ -50,6 +51,26 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   messagesRef.current = messages;
   isLoadingRef.current = isLoading;
 
+  const {
+    isListening,
+    transcript,
+    interimTranscript,
+    isSupported: voiceSupported,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useVoiceInput();
+
+  // When voice transcript is finalized, put it in the input
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript);
+    }
+  }, [transcript]);
+
+  // Show interim transcript live in placeholder area
+  const displayInput = input || (isListening ? interimTranscript : "");
+
   // Update system message when customer changes externally
   useEffect(() => {
     setMessages((prev) => {
@@ -58,7 +79,6 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
         content: `Connected to ${customer.name} (${customer.accountId}). Customer is on ${customer.plan} plan.`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
-      // Replace first system message
       if (prev[0]?.role === "system") {
         return [newSystem, ...prev.slice(1)];
       }
@@ -77,6 +97,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     const updatedMessages = [...currentMessages, userMsg];
     setMessages(updatedMessages);
     setInput("");
+    resetTranscript();
     setIsLoading(true);
     customerUpdateApplied.current = false;
 
@@ -111,7 +132,6 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
       let textBuffer = "";
 
       const upsertAssistant = (content: string) => {
-        // Try to parse and strip customer_update from displayed content
         const { update, cleanContent } = parseCustomerUpdate(content);
         if (update && !customerUpdateApplied.current) {
           customerUpdateApplied.current = true;
@@ -170,8 +190,19 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   sendToAIRef.current = sendToAI;
 
   const handleSend = () => {
-    if (!input.trim() || isLoading) return;
-    sendToAI(input, messages);
+    const textToSend = input.trim() || transcript.trim();
+    if (!textToSend || isLoading) return;
+    if (isListening) stopListening();
+    sendToAI(textToSend, messages);
+  };
+
+  const handleVoiceToggle = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      setInput("");
+      startListening();
+    }
   };
 
   useImperativeHandle(ref, () => ({
@@ -220,30 +251,73 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
         )}
       </div>
 
+      {/* Voice listening indicator */}
+      <AnimatePresence>
+        {isListening && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-3 pb-1"
+          >
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20">
+              <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+              <span className="text-[10px] font-medium text-destructive">Listening...</span>
+              {interimTranscript && (
+                <span className="text-[10px] text-muted-foreground italic truncate flex-1">
+                  {interimTranscript}
+                </span>
+              )}
+              <div className="flex gap-0.5">
+                {[...Array(4)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="w-0.5 bg-destructive rounded-full"
+                    animate={{ height: [4, 12, 4] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1 }}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input */}
       <div className="p-3 border-t border-border/50">
         <div className="flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2">
           <input
             type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            value={displayInput}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (isListening) stopListening();
+            }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Ask about customer actions, recommendations..."
+            placeholder={isListening ? "Speak now..." : "Ask about customer actions, recommendations..."}
             disabled={isLoading}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
           />
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-8 h-8 rounded-lg bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Mic className="w-4 h-4" />
-          </motion.button>
+          {voiceSupported && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleVoiceToggle}
+              disabled={isLoading}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                isListening
+                  ? "bg-destructive text-destructive-foreground"
+                  : "bg-muted/80 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </motion.button>
+          )}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={handleSend}
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || (!input.trim() && !transcript.trim())}
             className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground disabled:opacity-50"
           >
             <Send className="w-4 h-4" />

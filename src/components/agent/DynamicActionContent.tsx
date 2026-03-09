@@ -15,6 +15,11 @@ import {
   Package,
   Clock,
   Star,
+  Receipt,
+  Power,
+  AlertTriangle,
+  CreditCard,
+  PhoneCall,
 } from "lucide-react";
 import { CustomerData } from "@/types/customer";
 
@@ -39,7 +44,12 @@ const actionIcons: Record<string, React.ElementType> = {
   "Device Trade-In": Smartphone,
   "Home Internet Bundle": Wifi,
   "Premium Support": Shield,
+  "Billing Dispute": Receipt,
+  "Account Suspend/Reactivate": Power,
+  "Multi-Line Management": Users,
 };
+
+// ===================== EXISTING FLOWS =====================
 
 function PlanUpgradeSteps(customer: CustomerData): ActionStepData[] {
   return [
@@ -600,6 +610,301 @@ function PremiumSupportSteps(customer: CustomerData): ActionStepData[] {
   ];
 }
 
+// ===================== NEW FLOWS =====================
+
+function BillingDisputeSteps(customer: CustomerData): ActionStepData[] {
+  return [
+    {
+      title: "Customer Identified",
+      subtitle: "Reviewing billing history & disputes",
+      content: (
+        <div className="space-y-3">
+          <InfoCard label="Monthly Spend" value={customer.monthlySpend} icon={DollarSign} />
+          <InfoCard label="Account Status" value="Active — Good standing" icon={CheckCircle2} />
+          <InfoCard label="Tenure" value={customer.tenure} icon={Clock} />
+          <div className="glass-panel p-3 border-warning/20">
+            <p className="text-xs font-medium text-warning">⚠️ Disputed charge detected</p>
+            <p className="text-[10px] text-muted-foreground mt-1">$78.50 charge on last billing cycle flagged by customer. International roaming fees from recent travel.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Charge Analysis",
+      subtitle: "Reviewing disputed charges in detail",
+      content: (
+        <div className="space-y-3">
+          <MetricRow label="Disputed Amount" value="$78.50" status="warning" />
+          <MetricRow label="Charge Type" value="Int'l Roaming" status="neutral" />
+          <MetricRow label="Previous Disputes" value="0 in 12mo" status="success" />
+          <MetricRow label="Customer Tenure" value={customer.tenure} status="success" />
+          <div className="gradient-hero rounded-xl p-3 border border-primary/20">
+            <p className="text-xs font-semibold text-foreground">📊 Dispute Assessment</p>
+            <p className="text-[10px] text-muted-foreground mt-1">First-time dispute from a long-tenure customer. Roaming charges were valid but customer had no travel pass. Goodwill credit recommended to preserve relationship.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Recommended Resolution",
+      subtitle: "Best resolution for retention",
+      content: (
+        <div className="space-y-3">
+          <div className="glass-panel p-4 border-primary/30">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-bold text-foreground">Partial Goodwill Credit</h4>
+              <span className="text-xs font-bold text-primary">-$50.00</span>
+            </div>
+            <div className="space-y-1.5">
+              <FeatureItem text="$50 credit applied to next billing cycle" />
+              <FeatureItem text="Add free International Day Pass (30 days)" />
+              <FeatureItem text="Auto-enroll in TravelPass for future trips" />
+              <FeatureItem text="Waive late payment fee if applicable" />
+            </div>
+          </div>
+          <ComparisonRow label="Disputed Amount" from="$78.50" to="$28.50" impact="-$50 credit" />
+          <ComparisonRow label="Retention Value" from="$50 cost" to={customer.ltv} impact="High ROI" />
+        </div>
+      ),
+    },
+    {
+      title: "Process Resolution",
+      subtitle: "Applying billing adjustment...",
+      content: (
+        <div className="space-y-3">
+          <StepItem step={1} text="Verify disputed charge details" status="done" />
+          <StepItem step={2} text="Calculate goodwill credit amount" status="done" />
+          <StepItem step={3} text="Apply $50 bill credit" status="active" />
+          <StepItem step={4} text="Activate TravelPass add-on" status="pending" />
+          <StepItem step={5} text="Send resolution confirmation" status="pending" />
+          <div className="glass-panel p-3 border-warning/20">
+            <p className="text-xs font-medium text-warning">⏳ Awaiting supervisor approval</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Credits over $25 require supervisor authorization. Auto-approval in progress.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Dispute Resolved",
+      subtitle: "Billing adjustment applied",
+      content: (
+        <div className="space-y-3">
+          <div className="glass-panel p-4 border-success/30">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle2 className="w-5 h-5 text-success" />
+              <h4 className="text-sm font-bold text-success">Resolution Complete</h4>
+            </div>
+            <div className="space-y-1.5 text-xs text-muted-foreground">
+              <p>• <strong className="text-foreground">$50 credit</strong> applied to next bill</p>
+              <p>• TravelPass activated — <strong className="text-foreground">$10/day international</strong></p>
+              <p>• Remaining balance: <strong className="text-foreground">$28.50</strong></p>
+              <p>• Resolution email sent to {customer.phone}</p>
+            </div>
+          </div>
+          <MetricRow label="Customer Satisfaction" value="Preserved" status="success" />
+          <MetricRow label="Cross-sell Added" value="TravelPass $10/day" status="success" />
+        </div>
+      ),
+    },
+  ];
+}
+
+function AccountSuspensionSteps(customer: CustomerData): ActionStepData[] {
+  return [
+    {
+      title: "Account Review",
+      subtitle: "Checking suspension status & reason",
+      content: (
+        <div className="space-y-3">
+          <InfoCard label="Account" value={customer.accountId} icon={Power} />
+          <InfoCard label="Monthly Spend" value={customer.monthlySpend} icon={DollarSign} />
+          <InfoCard label="Lines Affected" value={`${customer.deviceCount} lines`} icon={PhoneCall} />
+          <div className="glass-panel p-3 border-destructive/20">
+            <p className="text-xs font-medium text-destructive">🔴 Account Suspended</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Suspended due to non-payment. Outstanding balance: $234.00 (2 billing cycles). Grace period: 15 days remaining.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Balance Analysis",
+      subtitle: "Payment history & restoration options",
+      content: (
+        <div className="space-y-3">
+          <MetricRow label="Outstanding Balance" value="$234.00" status="warning" />
+          <MetricRow label="Missed Payments" value="2 cycles" status="warning" />
+          <MetricRow label="Previous Payment History" value="Good (36mo)" status="success" />
+          <MetricRow label="Grace Period Remaining" value="15 days" status="warning" />
+          <div className="gradient-hero rounded-xl p-3 border border-primary/20">
+            <p className="text-xs font-semibold text-foreground">📊 Risk Assessment</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Long-tenure customer with previously clean payment record. Likely temporary financial hardship. Payment arrangement recommended to retain {customer.ltv} lifetime value.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Recommended Action",
+      subtitle: "Best reactivation path",
+      content: (
+        <div className="space-y-3">
+          <div className="glass-panel p-4 border-primary/30">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-bold text-foreground">Payment Arrangement</h4>
+              <span className="text-xs font-bold text-primary">3 installments</span>
+            </div>
+            <div className="space-y-1.5">
+              <FeatureItem text="Immediate service restoration" />
+              <FeatureItem text="$78/mo × 3 months (split evenly)" />
+              <FeatureItem text="No late fees applied during arrangement" />
+              <FeatureItem text="Auto-pay enrollment required" />
+              <FeatureItem text="$5/mo auto-pay discount applied" />
+            </div>
+          </div>
+          <ComparisonRow label="Total Owed" from="$234.00" to="$78/mo × 3" impact="0% interest" />
+          <ComparisonRow label="Retention Value" from="$234 at risk" to={customer.ltv} impact="Retained" />
+        </div>
+      ),
+    },
+    {
+      title: "Process Reactivation",
+      subtitle: "Restoring account services...",
+      content: (
+        <div className="space-y-3">
+          <StepItem step={1} text="Verify customer identity" status="done" />
+          <StepItem step={2} text="Set up payment arrangement" status="done" />
+          <StepItem step={3} text="Restore all service lines" status="active" />
+          <StepItem step={4} text="Enroll in auto-pay" status="pending" />
+          <StepItem step={5} text="Send reactivation confirmation" status="pending" />
+          <div className="glass-panel p-3 border-primary/20">
+            <p className="text-xs font-medium text-primary">🔄 Reactivation in progress</p>
+            <p className="text-[10px] text-muted-foreground mt-1">All {customer.deviceCount} lines will be restored within 15 minutes of arrangement confirmation.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Account Reactivated",
+      subtitle: "All services restored",
+      content: (
+        <div className="space-y-3">
+          <div className="glass-panel p-4 border-success/30">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle2 className="w-5 h-5 text-success" />
+              <h4 className="text-sm font-bold text-success">Account Active</h4>
+            </div>
+            <div className="space-y-1.5 text-xs text-muted-foreground">
+              <p>• All <strong className="text-foreground">{customer.deviceCount} lines</strong> restored</p>
+              <p>• Payment plan: <strong className="text-foreground">$78/mo × 3 months</strong></p>
+              <p>• Auto-pay enrolled with <strong className="text-primary">$5/mo discount</strong></p>
+              <p>• Next payment due: <strong className="text-foreground">March 15, 2026</strong></p>
+            </div>
+          </div>
+          <MetricRow label="Revenue Recovered" value="$234.00" status="success" />
+          <MetricRow label="LTV Preserved" value={customer.ltv} status="success" />
+        </div>
+      ),
+    },
+  ];
+}
+
+function MultiLineSteps(customer: CustomerData): ActionStepData[] {
+  return [
+    {
+      title: "Account Overview",
+      subtitle: "Reviewing current lines & plan structure",
+      content: (
+        <div className="space-y-3">
+          <InfoCard label="Current Lines" value={`${customer.deviceCount} active`} icon={Users} />
+          <InfoCard label="Plan" value={customer.plan} icon={Signal} />
+          <InfoCard label="Monthly Total" value={customer.monthlySpend} icon={DollarSign} />
+          <div className="glass-panel p-3 border-primary/20">
+            <p className="text-xs font-medium text-primary">📱 Line Management Ready</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{customer.deviceCount} active lines on {customer.plan}. Adding a line reduces per-line cost by $5/mo due to multi-line discount.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Line Analysis",
+      subtitle: "Usage across all lines",
+      content: (
+        <div className="space-y-3">
+          <MetricRow label="Active Lines" value={`${customer.deviceCount}`} status="neutral" />
+          <MetricRow label="Per-Line Cost" value={`$${(parseFloat(customer.monthlySpend.replace('$', '')) / customer.deviceCount).toFixed(2)}`} status="neutral" />
+          <MetricRow label="Multi-Line Discount" value="Active" status="success" />
+          <MetricRow label="Max Lines Allowed" value="10" status="neutral" />
+          <div className="gradient-hero rounded-xl p-3 border border-primary/20">
+            <p className="text-xs font-semibold text-foreground">📊 Multi-Line Optimization</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Adding line {customer.deviceCount + 1} triggers the next discount tier — saving $5/mo per line across all existing lines. Net impact: +$35/mo revenue, -$15/mo savings for customer.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Recommended Action",
+      subtitle: "Best line management option",
+      content: (
+        <div className="space-y-3">
+          <div className="glass-panel p-4 border-primary/30">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-bold text-foreground">Add New Line</h4>
+              <span className="text-xs font-bold text-primary">+$35/mo</span>
+            </div>
+            <div className="space-y-1.5">
+              <FeatureItem text="New number with same plan features" />
+              <FeatureItem text="Device financing from $0 down" />
+              <FeatureItem text="Multi-line discount applied to all lines" />
+              <FeatureItem text="Free SIM/eSIM activation" />
+              <FeatureItem text="Number port-in available if switching" />
+            </div>
+          </div>
+          <ComparisonRow label="New Line Cost" from="$50/mo" to="$35/mo" impact="-$15 discount" />
+          <ComparisonRow label="Account ARPU" from={customer.monthlySpend} to={`$${(parseFloat(customer.monthlySpend.replace('$', '')) + 35).toFixed(2)}`} impact="+$420/yr" />
+        </div>
+      ),
+    },
+    {
+      title: "Process Line Change",
+      subtitle: "Executing line addition...",
+      content: (
+        <div className="space-y-3">
+          <StepItem step={1} text="Verify account eligibility" status="done" />
+          <StepItem step={2} text="Assign new number / port-in" status="done" />
+          <StepItem step={3} text="Provision new line on network" status="active" />
+          <StepItem step={4} text="Apply multi-line discount" status="pending" />
+          <StepItem step={5} text="Ship SIM / activate eSIM" status="pending" />
+          <div className="glass-panel p-3 border-primary/20">
+            <p className="text-xs font-medium text-primary">📡 Provisioning</p>
+            <p className="text-[10px] text-muted-foreground mt-1">New line will be active within 2 hours. eSIM activation available for instant setup.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Line Added",
+      subtitle: "New line successfully activated",
+      content: (
+        <div className="space-y-3">
+          <div className="glass-panel p-4 border-success/30">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle2 className="w-5 h-5 text-success" />
+              <h4 className="text-sm font-bold text-success">Line Active</h4>
+            </div>
+            <div className="space-y-1.5 text-xs text-muted-foreground">
+              <p>• New line added — total: <strong className="text-foreground">{customer.deviceCount + 1} lines</strong></p>
+              <p>• Multi-line discount: <strong className="text-primary">-$5/mo per line</strong></p>
+              <p>• Monthly increase: <strong className="text-foreground">+$35.00/mo</strong></p>
+              <p>• eSIM activation link sent</p>
+            </div>
+          </div>
+          <MetricRow label="Revenue Impact" value="+$420/yr" status="success" />
+          <MetricRow label="Account Stickiness" value="Improved" status="success" />
+        </div>
+      ),
+    },
+  ];
+}
+
 // --- Helper sub-components ---
 
 function InfoCard({ label, value, icon: Icon }: { label: string; value: string; icon: React.ElementType }) {
@@ -676,6 +981,9 @@ function getStepsForAction(actionTitle: string, customer: CustomerData): ActionS
     case "Device Trade-In": return DeviceTradeInSteps(customer);
     case "Home Internet Bundle": return HomeInternetSteps(customer);
     case "Premium Support": return PremiumSupportSteps(customer);
+    case "Billing Dispute": return BillingDisputeSteps(customer);
+    case "Account Suspend/Reactivate": return AccountSuspensionSteps(customer);
+    case "Multi-Line Management": return MultiLineSteps(customer);
     default: return PlanUpgradeSteps(customer);
   }
 }
@@ -722,6 +1030,27 @@ const nextStepPrompts: Record<string, string[]> = {
     "Recommend the best premium support tier based on account value.",
     "Activate the premium support upgrade immediately.",
     "Confirm premium support is active. Summarize new support experience.",
+    "",
+  ],
+  "Billing Dispute": [
+    "Analyze the disputed charges in detail — identify amount, type, and validity.",
+    "Recommend the best resolution: partial credit, full reversal, or payment plan.",
+    "Process the billing adjustment and apply credits to the account.",
+    "Confirm the dispute is resolved. Summarize credits applied and prevention measures.",
+    "",
+  ],
+  "Account Suspend/Reactivate": [
+    "Analyze the suspension reason, outstanding balance, and payment history.",
+    "Recommend the best reactivation path: immediate payment, arrangement, or partial restore.",
+    "Process the reactivation and set up any payment arrangements.",
+    "Confirm the account is reactivated. Summarize restored services and payment schedule.",
+    "",
+  ],
+  "Multi-Line Management": [
+    "Analyze current lines, per-line costs, and multi-line discount tiers.",
+    "Recommend the best line action: add, remove, or transfer based on account structure.",
+    "Process the line change and apply updated multi-line discounts.",
+    "Confirm the line change is complete. Summarize new account structure and pricing.",
     "",
   ],
 };
