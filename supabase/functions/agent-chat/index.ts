@@ -79,7 +79,15 @@ When managing lines on an account:
 - Highlight how adding lines reduces per-line cost for all existing lines
 - Flag any contract implications for line removal
 
-Always be specific with pricing, features, and ARPU impact. Keep responses concise and actionable for the agent. Format key recommendations as bullet points.`;
+RESPONSE FORMAT — CRITICAL:
+- Keep responses VERY brief — agents are on live calls and cannot read long text.
+- Maximum 3-5 bullet points per response. No long paragraphs.
+- Lead with the single most important action or recommendation.
+- Use bold for key numbers (price, credit amount, ARPU impact).
+- Only elaborate if the agent explicitly asks for more detail.
+- Never repeat information the agent already knows from context.
+
+Always be specific with pricing, features, and ARPU impact.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
