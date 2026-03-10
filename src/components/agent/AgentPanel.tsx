@@ -61,11 +61,12 @@ export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProp
 
   const handleAction = (title: string) => {
     if (selectedAction !== title) {
+      // Reset step tracker when switching agents
       setCurrentStep(1);
+      setSelectedAction(title);
     } else {
       setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
     }
-    setSelectedAction(title);
 
     const prompt = actionPrompts[title];
     if (prompt && onActionClick) {
