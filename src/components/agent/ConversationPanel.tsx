@@ -220,7 +220,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   }), []);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       {/* Header */}
       <div className="p-4 border-b border-border/50 flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
@@ -289,6 +289,34 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
         )}
       </AnimatePresence>
 
+      {/* Floating mic FAB */}
+      {voiceSupported && (
+        <AnimatePresence>
+          <motion.button
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleVoiceToggle}
+            disabled={isLoading}
+            className={`absolute bottom-20 right-4 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors disabled:opacity-50 ${
+              isListening
+                ? "bg-destructive text-destructive-foreground shadow-destructive/30"
+                : "bg-primary text-primary-foreground shadow-primary/30 hover:shadow-xl"
+            }`}
+          >
+            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isListening && (
+              <motion.span
+                className="absolute inset-0 rounded-full border-2 border-destructive"
+                animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+            )}
+          </motion.button>
+        </AnimatePresence>
+      )}
+
       {/* Input */}
       <div className="p-3 border-t border-border/50">
         <div className="flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2">
@@ -304,21 +332,6 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
             disabled={isLoading}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
           />
-          {voiceSupported && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleVoiceToggle}
-              disabled={isLoading}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                isListening
-                  ? "bg-destructive text-destructive-foreground"
-                  : "bg-muted/80 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-            </motion.button>
-          )}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
