@@ -220,7 +220,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   }), []);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       {/* Header */}
       <div className="p-4 border-b border-border/50 flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
