@@ -13,7 +13,6 @@ import {
   Power,
   Users,
   Bot,
-  ChevronRight,
 } from "lucide-react";
 import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
