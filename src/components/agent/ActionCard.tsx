@@ -27,20 +27,20 @@ export function ActionCard({ icon: Icon, title, description, tag, tagColor = "pr
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="glass-panel p-4 text-left w-full group hover:border-primary/30 transition-all duration-200 cursor-pointer"
+      className="glass-panel p-5 text-left w-full group hover:border-primary/30 transition-all duration-200 cursor-pointer min-h-[100px]"
     >
-      <div className="flex items-start justify-between mb-2">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-          <Icon className="w-4.5 h-4.5 text-primary" />
+      <div className="flex items-start justify-between mb-3">
+        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+          <Icon className="w-5 h-5 text-primary" />
         </div>
         {tag && (
-          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${tagStyles[tagColor]}`}>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${tagStyles[tagColor]}`}>
             {tag}
           </span>
         )}
       </div>
-      <h4 className="font-semibold text-sm text-foreground mb-1">{title}</h4>
-      <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+      <h4 className="font-bold text-base text-foreground mb-1.5">{title}</h4>
+      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
     </motion.button>
   );
 }

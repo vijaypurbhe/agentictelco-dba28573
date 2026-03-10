@@ -53,21 +53,21 @@ const Index = () => {
           <div className="border-t border-border/50 bg-card/80 backdrop-blur-xl flex">
             <button
               onClick={() => setActiveTab("chat")}
-              className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3.5 transition-colors ${
                 activeTab === "chat" ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <MessageCircle className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Conversation</span>
+              <MessageCircle className="w-6 h-6" />
+              <span className="text-xs font-semibold">Conversation</span>
             </button>
             <button
               onClick={() => setActiveTab("agent")}
-              className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3.5 transition-colors ${
                 activeTab === "agent" ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <LayoutDashboard className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Agent Panel</span>
+              <LayoutDashboard className="w-6 h-6" />
+              <span className="text-xs font-semibold">Agent Panel</span>
             </button>
           </div>
         </div>
