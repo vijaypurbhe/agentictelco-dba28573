@@ -51,6 +51,12 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   messagesRef.current = messages;
   isLoadingRef.current = isLoading;
 
+  const handleAutoStop = useCallback((finalTranscript: string) => {
+    if (finalTranscript && !isLoadingRef.current) {
+      sendToAIRef.current(finalTranscript, messagesRef.current);
+    }
+  }, []);
+
   const {
     isListening,
     transcript,
@@ -59,9 +65,9 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     startListening,
     stopListening,
     resetTranscript,
-  } = useVoiceInput();
+  } = useVoiceInput({ silenceTimeout: 1500, onAutoStop: handleAutoStop });
 
-  // When voice transcript is finalized, put it in the input
+  // When voice transcript is finalized, put it in the input (manual stop case)
   useEffect(() => {
     if (transcript) {
       setInput(transcript);
