@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mic, MicOff, MessageCircle, Loader2 } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";

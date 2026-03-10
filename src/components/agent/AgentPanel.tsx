@@ -48,12 +48,6 @@ const actions = [
   { icon: Users, title: "Multi-Line Management", description: "Add, remove, or transfer lines. Family plan optimization.", tag: "Account", tagColor: "primary" as const, agentName: "Lines Agent" },
 ];
 
-const tagStyles: Record<string, string> = {
-  primary: "bg-primary/15 text-primary",
-  accent: "bg-accent/15 text-accent",
-  success: "bg-success/15 text-success",
-  warning: "bg-warning/15 text-warning",
-};
 
 interface AgentPanelProps {
   onActionClick?: (prompt: string) => void;
