@@ -114,19 +114,19 @@ export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps)
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-panel p-4 space-y-3"
+      className="glass-panel p-5 space-y-4"
     >
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
-          <Icon className="w-3.5 h-3.5 text-primary" />
+      <div className="flex items-center gap-3 mb-1">
+        <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+          <Icon className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h3 className="text-xs font-semibold text-foreground">Select an option</h3>
-          <p className="text-[10px] text-muted-foreground">Choose to proceed in conversation</p>
+          <h3 className="text-sm font-bold text-foreground">Pick one option below</h3>
+          <p className="text-xs text-muted-foreground">Tap to proceed with the customer</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {options.map((option, i) => (
           <motion.button
             key={option.id}
@@ -134,24 +134,24 @@ export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps)
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
             onClick={() => promptBuilder && onSelect(promptBuilder(option))}
-            className={`relative flex flex-col items-center text-center gap-1.5 p-3 rounded-xl transition-all group hover:scale-[1.03] active:scale-[0.97] ${
+            className={`relative flex flex-col items-center text-center gap-2 p-4 rounded-xl transition-all group hover:scale-[1.03] active:scale-[0.97] min-h-[110px] ${
               option.highlight
                 ? "bg-primary/15 border-2 border-primary/40 shadow-md shadow-primary/10"
                 : "bg-muted/50 border border-border/50 hover:bg-muted/70 hover:border-border"
             }`}
           >
             {option.highlight && (
-              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] px-2 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-3 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
                 Best
               </span>
             )}
             {option.price && (
-              <span className={`text-sm font-bold mt-1 ${option.highlight ? "text-primary" : "text-foreground"}`}>
+              <span className={`text-lg font-bold mt-1 ${option.highlight ? "text-primary" : "text-foreground"}`}>
                 {option.price}
               </span>
             )}
-            <span className="text-[11px] font-semibold text-foreground leading-tight">{option.label}</span>
-            <p className="text-[9px] text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
+            <span className="text-sm font-bold text-foreground leading-tight">{option.label}</span>
+            <p className="text-xs text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
           </motion.button>
         ))}
       </div>

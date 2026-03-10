@@ -1070,23 +1070,23 @@ export function DynamicActionContent({ actionTitle, currentStep, customer, onBac
   const isLastStep = currentStep >= steps.length - 1;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Action Header */}
       <div className="flex items-center gap-3">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onBack}
-          className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
         </motion.button>
-        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-          <ActionIcon className="w-4.5 h-4.5 text-primary" />
+        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+          <ActionIcon className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-bold text-foreground">{actionTitle}</h3>
-          <p className="text-[10px] text-muted-foreground">{stepData.subtitle}</p>
+          <h3 className="text-base font-bold text-foreground">{actionTitle}</h3>
+          <p className="text-xs text-muted-foreground">{stepData.subtitle}</p>
         </div>
       </div>
 
@@ -1099,9 +1099,9 @@ export function DynamicActionContent({ actionTitle, currentStep, customer, onBac
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
         >
-          <div className="gradient-hero rounded-xl p-3 border border-primary/20 mb-3">
-            <h4 className="text-xs font-bold text-foreground">{stepData.title}</h4>
-            <p className="text-[10px] text-muted-foreground">{stepData.subtitle}</p>
+          <div className="gradient-hero rounded-xl p-4 border border-primary/20 mb-4">
+            <h4 className="text-sm font-bold text-foreground">{stepData.title}</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">{stepData.subtitle}</p>
           </div>
           {stepData.content}
         </motion.div>
@@ -1114,7 +1114,7 @@ export function DynamicActionContent({ actionTitle, currentStep, customer, onBac
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
           onClick={() => onNextStep(nextPrompt)}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all"
+          className="w-full flex items-center justify-center gap-2 py-4 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-[0.98] transition-all min-h-[48px]"
         >
           {nextLabel}
         </motion.button>
@@ -1125,9 +1125,9 @@ export function DynamicActionContent({ actionTitle, currentStep, customer, onBac
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={onBack}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-success/15 text-success text-xs font-semibold hover:bg-success/25 active:scale-[0.98] transition-all"
+          className="w-full flex items-center justify-center gap-2 py-4 px-5 rounded-xl bg-success/15 text-success text-sm font-bold hover:bg-success/25 active:scale-[0.98] transition-all min-h-[48px]"
         >
-          <CheckCircle2 className="w-3.5 h-3.5" />
+          <CheckCircle2 className="w-5 h-5" />
           Done — Back to Recommendations
         </motion.button>
       )}

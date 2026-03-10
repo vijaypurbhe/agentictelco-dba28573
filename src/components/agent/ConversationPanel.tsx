@@ -67,17 +67,14 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     resetTranscript,
   } = useVoiceInput({ silenceTimeout: 1500, onAutoStop: handleAutoStop });
 
-  // When voice transcript is finalized, put it in the input (manual stop case)
   useEffect(() => {
     if (transcript) {
       setInput(transcript);
     }
   }, [transcript]);
 
-  // Show interim transcript live in placeholder area
   const displayInput = input || (isListening ? interimTranscript : "");
 
-  // Update system message when customer changes externally
   useEffect(() => {
     setMessages((prev) => {
       const newSystem: Msg = {
@@ -222,35 +219,35 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
   return (
     <div className="flex flex-col h-full relative">
       {/* Header */}
-      <div className="p-4 border-b border-border/50 flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-          <MessageCircle className="w-4 h-4 text-primary" />
+      <div className="p-5 border-b border-border/50 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+          <MessageCircle className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h2 className="font-semibold text-sm text-foreground">AI Conversation</h2>
-          <p className="text-[10px] text-muted-foreground">Agent-assisted customer interaction</p>
+          <h2 className="font-bold text-base text-foreground">AI Conversation</h2>
+          <p className="text-xs text-muted-foreground">Agent-assisted customer interaction</p>
         </div>
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-2">
           {isLoading ? (
-            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+            <Loader2 className="w-4 h-4 text-primary animate-spin" />
           ) : (
-            <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-success animate-pulse" />
           )}
-          <span className="text-[10px] text-success font-medium">{isLoading ? "Thinking..." : "Live"}</span>
+          <span className="text-xs text-success font-semibold">{isLoading ? "Thinking..." : "Live"}</span>
         </div>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin p-5 space-y-5">
         {messages.map((msg, i) => (
           <ChatMessage key={i} {...msg} />
         ))}
         {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-          <div className="flex gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center">
-              <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+          <div className="flex gap-3">
+            <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
+              <Loader2 className="w-4 h-4 text-primary animate-spin" />
             </div>
-            <div className="bg-secondary text-secondary-foreground text-sm px-3.5 py-2.5 rounded-xl rounded-tl-sm">
+            <div className="bg-secondary text-secondary-foreground text-sm px-4 py-3 rounded-2xl rounded-tl-sm">
               Analyzing customer data...
             </div>
           </div>
@@ -264,22 +261,22 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="px-3 pb-1"
+            className="px-4 pb-1"
           >
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20">
-              <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-              <span className="text-[10px] font-medium text-destructive">Listening...</span>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20">
+              <span className="w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
+              <span className="text-sm font-semibold text-destructive">Listening...</span>
               {interimTranscript && (
-                <span className="text-[10px] text-muted-foreground italic truncate flex-1">
+                <span className="text-sm text-muted-foreground italic truncate flex-1">
                   {interimTranscript}
                 </span>
               )}
-              <div className="flex gap-0.5">
+              <div className="flex gap-1">
                 {[...Array(4)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="w-0.5 bg-destructive rounded-full"
-                    animate={{ height: [4, 12, 4] }}
+                    className="w-1 bg-destructive rounded-full"
+                    animate={{ height: [6, 16, 6] }}
                     transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1 }}
                   />
                 ))}
@@ -299,13 +296,13 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
             whileTap={{ scale: 0.9 }}
             onClick={handleVoiceToggle}
             disabled={isLoading}
-            className={`absolute bottom-20 right-4 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors disabled:opacity-50 ${
+            className={`absolute bottom-24 right-5 z-10 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-colors disabled:opacity-50 ${
               isListening
                 ? "bg-destructive text-destructive-foreground shadow-destructive/30"
                 : "bg-primary text-primary-foreground shadow-primary/30 hover:shadow-xl"
             }`}
           >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             {isListening && (
               <motion.span
                 className="absolute inset-0 rounded-full border-2 border-destructive"
@@ -318,8 +315,8 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-border/50">
-        <div className="flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2">
+      <div className="p-4 border-t border-border/50">
+        <div className="flex items-center gap-3 bg-muted/60 rounded-2xl px-4 py-3">
           <input
             type="text"
             value={displayInput}
@@ -328,18 +325,18 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
               if (isListening) stopListening();
             }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={isListening ? "Speak now..." : "Ask about customer actions, recommendations..."}
+            placeholder={isListening ? "Speak now..." : "Type your message here..."}
             disabled={isLoading}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
+            className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
           />
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={handleSend}
             disabled={isLoading || (!input.trim() && !transcript.trim())}
-            className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground disabled:opacity-50"
+            className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center text-primary-foreground disabled:opacity-50"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-5 h-5" />
           </motion.button>
         </div>
       </div>
