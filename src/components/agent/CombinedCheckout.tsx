@@ -16,13 +16,22 @@ const actionIcons: Record<string, React.ElementType> = {
   "Multi-Line Management": Users,
 };
 
+interface AgentStatus {
+  title: string;
+  step: number;
+  totalSteps: number;
+}
+
 interface CombinedCheckoutProps {
-  activeActions: string[];
+  agents: AgentStatus[];
   onExecuteAll: () => void;
 }
 
-export function CombinedCheckout({ activeActions, onExecuteAll }: CombinedCheckoutProps) {
-  if (activeActions.length < 2) return null;
+export function CombinedCheckout({ agents, onExecuteAll }: CombinedCheckoutProps) {
+  if (agents.length < 2) return null;
+
+  const completedCount = agents.filter((a) => a.step >= a.totalSteps - 1).length;
+  const allComplete = completedCount === agents.length;
 
   return (
     <motion.div
