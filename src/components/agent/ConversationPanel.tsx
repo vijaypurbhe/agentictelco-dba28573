@@ -32,6 +32,7 @@ interface ConversationPanelProps {
   customer: CustomerData;
   onCustomerUpdate: (update: CustomerUpdate) => void;
   onActionDetected?: (actionTitle: string) => void;
+  onOptionDetected?: (optionId: string) => void;
   onMessageSent?: () => void;
 }
 
