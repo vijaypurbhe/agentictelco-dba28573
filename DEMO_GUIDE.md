@@ -1,5 +1,3 @@
-
-
 # AT&T Agent Assist — Feature Documentation & Testing Guide
 
 ## Overview
@@ -162,4 +160,3 @@ Each agent has a full 5-step workflow (Identify → Analyze → Recommend → Ex
 ### Theme Toggle
 1. Click the sun/moon icon in the top-right corner of the top bar
 2. The entire UI switches between dark and light themes
-
