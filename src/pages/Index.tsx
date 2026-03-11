@@ -35,6 +35,10 @@ const Index = () => {
     setConversationTurn((t) => t + 1);
   }, []);
 
+  const handleOptionDetected = useCallback((optionId: string) => {
+    setDetectedOption(optionId);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <TopBar />
