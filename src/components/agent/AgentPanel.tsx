@@ -53,6 +53,7 @@ interface AgentPanelProps {
   onActionClick?: (prompt: string) => void;
   customer: CustomerData;
   timeline: TimelineEvent[];
+  externalAction?: string | null;
 }
 
 export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProps) {
