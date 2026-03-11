@@ -56,9 +56,17 @@ interface AgentPanelProps {
   externalAction?: string | null;
 }
 
-export function AgentPanel({ onActionClick, customer, timeline }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline, externalAction }: AgentPanelProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+
+  // Sync when an action is detected from conversation (voice/typed)
+  useEffect(() => {
+    if (externalAction && externalAction !== selectedAction) {
+      setSelectedAction(externalAction);
+      setCurrentStep(1);
+    }
+  }, [externalAction]);
 
   const handleAction = (title: string) => {
     if (selectedAction !== title) {
