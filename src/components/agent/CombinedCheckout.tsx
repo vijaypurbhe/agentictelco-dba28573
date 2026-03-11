@@ -50,16 +50,25 @@ export function CombinedCheckout({ agents, onExecuteAll }: CombinedCheckoutProps
       </div>
 
       <div className="space-y-2">
-        {activeActions.map((action, i) => {
-          const Icon = actionIcons[action] || TrendingUp;
+        {agents.map((agent, i) => {
+          const Icon = actionIcons[agent.title] || TrendingUp;
+          const isComplete = agent.step >= agent.totalSteps - 1;
           return (
-            <div key={action} className="flex items-center gap-3 p-3 rounded-lg bg-muted/40 border border-border/40">
-              <span className="w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+            <div key={agent.title} className={`flex items-center gap-3 p-3 rounded-lg border ${
+              isComplete ? "bg-success/5 border-success/30" : "bg-muted/40 border-border/40"
+            }`}>
+              <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
+                isComplete ? "bg-success/15 text-success" : "bg-primary/15 text-primary"
+              }`}>
                 {i + 1}
               </span>
-              <Icon className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-sm font-medium text-foreground flex-1">{action}</span>
-              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+              <Icon className={`w-4 h-4 shrink-0 ${isComplete ? "text-success" : "text-primary"}`} />
+              <span className="text-sm font-medium text-foreground flex-1">{agent.title}</span>
+              {isComplete ? (
+                <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+              ) : (
+                <span className="text-[10px] text-muted-foreground shrink-0">Step {agent.step + 1}/{agent.totalSteps}</span>
+              )}
             </div>
           );
         })}
