@@ -36,7 +36,7 @@ const Login = ({ onAuthenticated }: LoginProps) => {
           <img
             src={techMahindraLogo}
             alt="Tech Mahindra"
-            className="h-16 w-auto object-contain"
+            className="h-24 w-auto object-contain"
           />
           <div className="h-px w-16 bg-border/60" />
         </div>
