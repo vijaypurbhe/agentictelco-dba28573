@@ -55,7 +55,7 @@ const Index = () => {
               <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onMessageSent={handleMessageSent} />
             </div>
             <div className={`absolute inset-0 ${activeTab === "agent" ? "" : "invisible"}`}>
-              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} />
+              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} conversationTurn={conversationTurn} />
             </div>
           </div>
 
