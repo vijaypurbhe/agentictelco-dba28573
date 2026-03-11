@@ -39,7 +39,7 @@ const Index = () => {
             <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} />
           </div>
           <div className="flex-1 flex flex-col">
-            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
+            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} />
           </div>
         </div>
       ) : (
