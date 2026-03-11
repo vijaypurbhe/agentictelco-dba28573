@@ -47,7 +47,7 @@ const Index = () => {
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             <div className={`absolute inset-0 ${activeTab === "chat" ? "" : "invisible"}`}>
-              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
+              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} />
             </div>
             <div className={`absolute inset-0 ${activeTab === "agent" ? "" : "invisible"}`}>
               <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
