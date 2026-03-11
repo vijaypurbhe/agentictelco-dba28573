@@ -28,39 +28,37 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
   const onAutoStopRef = useRef(onAutoStop);
   const isTranscribingRef = useRef(false);
   onAutoStopRef.current = onAutoStop;
 
   const isSupported = typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
 
-  const clearSilenceTimer = useCallback(() => {
+  const stopAllMedia = useCallback(() => {
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
-  }, []);
-
-  const cleanup = useCallback(() => {
-    clearSilenceTimer();
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
     analyserRef.current = null;
-    mediaRecorderRef.current = null;
-  }, [clearSilenceTimer]);
+  }, []);
 
   useEffect(() => {
-    return () => cleanup();
-  }, [cleanup]);
+    return () => {
+      stopAllMedia();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      audioCtxRef.current?.close();
+    };
+  }, [stopAllMedia]);
 
   const transcribeAudio = useCallback(async (audioBlob: Blob) => {
     if (isTranscribingRef.current) return;
@@ -68,7 +66,6 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
     setInterimTranscript("Transcribing...");
 
     try {
-      // Convert to base64
       const arrayBuffer = await audioBlob.arrayBuffer();
       const base64 = btoa(
         new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
@@ -113,15 +110,14 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      // Set up audio analyser for silence detection
       const audioCtx = new AudioContext();
+      audioCtxRef.current = audioCtx;
       const source = audioCtx.createMediaStreamSource(stream);
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 512;
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      // Use a widely supported format
       const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
         ? "audio/webm;codecs=opus"
         : "audio/webm";
@@ -141,15 +137,14 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
         if (audioBlob.size > 0) {
           transcribeAudio(audioBlob);
         }
-        audioCtx.close();
+        audioCtx.close().catch(() => {});
       };
 
-      mediaRecorder.start(250); // collect in 250ms chunks
+      mediaRecorder.start(250);
       setIsListening(true);
       setTranscript("");
-      setInterimTranscript("");
+      setInterimTranscript("Listening...");
 
-      // Silence detection via analyser
       let speechDetected = false;
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
@@ -159,12 +154,11 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
         const avg = dataArray.reduce((sum, v) => sum + v, 0) / dataArray.length;
 
         if (avg > 15) {
-          // Speech detected
           speechDetected = true;
-          setInterimTranscript("Listening...");
-          clearSilenceTimer();
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+          }
           silenceTimerRef.current = setTimeout(() => {
-            // Silence after speech → stop and transcribe
             if (mediaRecorderRef.current?.state === "recording") {
               mediaRecorderRef.current.stop();
               setIsListening(false);
@@ -183,14 +177,10 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       console.error("Microphone access error:", e);
       setIsListening(false);
     }
-  }, [isSupported, silenceTimeout, clearSilenceTimer, transcribeAudio]);
+  }, [isSupported, silenceTimeout, transcribeAudio]);
 
   const stopListening = useCallback(() => {
-    clearSilenceTimer();
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
+    stopAllMedia();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
     }
@@ -198,7 +188,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       streamRef.current.getTracks().forEach((t) => t.stop());
     }
     setIsListening(false);
-  }, [clearSilenceTimer]);
+  }, [stopAllMedia]);
 
   const resetTranscript = useCallback(() => {
     setTranscript("");
