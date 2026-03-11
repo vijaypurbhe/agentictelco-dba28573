@@ -41,7 +41,7 @@ const Index = () => {
         /* Desktop: side-by-side */
         <div className="flex flex-1 overflow-hidden">
           <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
-            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} />
+            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onMessageSent={handleMessageSent} />
           </div>
           <div className="flex-1 flex flex-col">
             <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} />
