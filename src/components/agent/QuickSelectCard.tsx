@@ -107,9 +107,16 @@ const selectPrompts: Record<string, (option: QuickOption) => string> = {
     `Process multi-line action: ${o.label}. Details: ${o.sublabel}. Cost: ${o.price}. Execute the line change and confirm updated account details.`,
 };
 
-export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps) {
+export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId }: QuickSelectCardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const options = actionOptions[actionTitle] || [];
+
+  // Sync external selection from voice/typed input
+  useEffect(() => {
+    if (externalSelectedId && options.some((o) => o.id === externalSelectedId)) {
+      setSelectedId(externalSelectedId);
+    }
+  }, [externalSelectedId, options]);
   const Icon = actionIcons[actionTitle] || TrendingUp;
   const promptBuilder = selectPrompts[actionTitle];
 
