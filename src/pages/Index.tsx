@@ -12,6 +12,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<"chat" | "agent">("chat");
   const [customer, setCustomer] = useState<CustomerData>(DEFAULT_CUSTOMER);
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
+  const [detectedAction, setDetectedAction] = useState<string | null>(null);
 
   const handleActionClick = (prompt: string) => {
     conversationRef.current?.sendMessage(prompt);
@@ -23,6 +24,10 @@ const Index = () => {
     setTimeline(update.timeline);
   }, []);
 
+  const handleActionDetected = useCallback((actionTitle: string) => {
+    setDetectedAction(actionTitle);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <TopBar />
@@ -31,10 +36,10 @@ const Index = () => {
         /* Desktop: side-by-side */
         <div className="flex flex-1 overflow-hidden">
           <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
-            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
+            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} />
           </div>
           <div className="flex-1 flex flex-col">
-            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
+            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} />
           </div>
         </div>
       ) : (
@@ -42,10 +47,10 @@ const Index = () => {
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             <div className={`absolute inset-0 ${activeTab === "chat" ? "" : "invisible"}`}>
-              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} />
+              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} />
             </div>
             <div className={`absolute inset-0 ${activeTab === "agent" ? "" : "invisible"}`}>
-              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} />
+              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} />
             </div>
           </div>
 

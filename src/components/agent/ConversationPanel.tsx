@@ -5,6 +5,7 @@ import { ChatMessage } from "./ChatMessage";
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { CustomerData, CustomerUpdate } from "@/types/customer";
+import { detectActionIntent } from "@/lib/intent-detection";
 
 type Msg = { role: "user" | "assistant" | "system"; content: string; timestamp: string };
 
@@ -30,10 +31,11 @@ export interface ConversationPanelHandle {
 interface ConversationPanelProps {
   customer: CustomerData;
   onCustomerUpdate: (update: CustomerUpdate) => void;
+  onActionDetected?: (actionTitle: string) => void;
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
-  ({ customer, onCustomerUpdate }, ref) => {
+  ({ customer, onCustomerUpdate, onActionDetected }, ref) => {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "system",
@@ -101,6 +103,12 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     setMessages(updatedMessages);
     setInput("");
     resetTranscript();
+
+    // Detect intent and notify parent to sync agent panel
+    const detectedAction = detectActionIntent(text);
+    if (detectedAction && onActionDetected) {
+      onActionDetected(detectedAction);
+    }
     setIsLoading(true);
     customerUpdateApplied.current = false;
 
