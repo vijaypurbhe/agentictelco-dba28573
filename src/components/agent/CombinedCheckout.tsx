@@ -81,7 +81,7 @@ export function CombinedCheckout({ agents, onExecuteAll }: CombinedCheckoutProps
         className="w-full flex items-center justify-center gap-2 py-4 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all min-h-[48px]"
       >
         <ShoppingCart className="w-4 h-4" />
-        Execute All {activeActions.length} Actions
+        Execute All {agents.length} Actions
         <ArrowRight className="w-4 h-4" />
       </motion.button>
     </motion.div>
