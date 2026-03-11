@@ -5,7 +5,7 @@ import { ChatMessage } from "./ChatMessage";
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { CustomerData, CustomerUpdate } from "@/types/customer";
-import { detectActionIntent } from "@/lib/intent-detection";
+import { detectFullIntent } from "@/lib/intent-detection";
 
 type Msg = { role: "user" | "assistant" | "system"; content: string; timestamp: string };
 
@@ -32,11 +32,12 @@ interface ConversationPanelProps {
   customer: CustomerData;
   onCustomerUpdate: (update: CustomerUpdate) => void;
   onActionDetected?: (actionTitle: string) => void;
+  onOptionDetected?: (optionId: string) => void;
   onMessageSent?: () => void;
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
-  ({ customer, onCustomerUpdate, onActionDetected, onMessageSent }, ref) => {
+  ({ customer, onCustomerUpdate, onActionDetected, onOptionDetected, onMessageSent }, ref) => {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "system",
@@ -106,9 +107,12 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     resetTranscript();
 
     // Detect intent and notify parent to sync agent panel
-    const detectedAction = detectActionIntent(text);
-    if (detectedAction && onActionDetected) {
-      onActionDetected(detectedAction);
+    const intent = detectFullIntent(text);
+    if (intent.action && onActionDetected) {
+      onActionDetected(intent.action);
+    }
+    if (intent.optionId && onOptionDetected) {
+      onOptionDetected(intent.optionId);
     }
     // Notify parent that a message was sent (for step progression)
     onMessageSent?.();

@@ -54,10 +54,11 @@ interface AgentPanelProps {
   customer: CustomerData;
   timeline: TimelineEvent[];
   externalAction?: string | null;
+  externalOption?: string | null;
   conversationTurn?: number;
 }
 
-export function AgentPanel({ onActionClick, customer, timeline, externalAction, conversationTurn = 0 }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0 }: AgentPanelProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const actionTurnRef = useRef(0);
@@ -207,6 +208,7 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
             >
               <QuickSelectCard
                 actionTitle={selectedAction}
+                externalSelectedId={externalOption}
                 onSelect={(prompt) => {
                   setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
                   if (onActionClick) onActionClick(prompt);
