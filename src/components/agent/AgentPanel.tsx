@@ -54,19 +54,31 @@ interface AgentPanelProps {
   customer: CustomerData;
   timeline: TimelineEvent[];
   externalAction?: string | null;
+  conversationTurn?: number;
 }
 
-export function AgentPanel({ onActionClick, customer, timeline, externalAction }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline, externalAction, conversationTurn = 0 }: AgentPanelProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const actionTurnRef = useRef(0);
 
   // Sync when an action is detected from conversation (voice/typed)
   useEffect(() => {
     if (externalAction && externalAction !== selectedAction) {
       setSelectedAction(externalAction);
       setCurrentStep(1);
+      actionTurnRef.current = conversationTurn;
     }
   }, [externalAction]);
+
+  // Advance steps as conversation progresses while an action is active
+  useEffect(() => {
+    if (selectedAction && conversationTurn > actionTurnRef.current) {
+      const turnsSinceAction = conversationTurn - actionTurnRef.current;
+      const newStep = Math.min(turnsSinceAction + 1, steps.length - 1);
+      setCurrentStep(newStep);
+    }
+  }, [conversationTurn, selectedAction]);
 
   const handleAction = (title: string) => {
     if (selectedAction !== title) {
