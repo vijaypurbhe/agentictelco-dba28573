@@ -45,7 +45,7 @@ export function CombinedCheckout({ agents, onExecuteAll }: CombinedCheckoutProps
         </div>
         <div>
           <h3 className="text-sm font-bold text-foreground">Combined Execution Summary</h3>
-          <p className="text-xs text-muted-foreground">{activeActions.length} actions queued for this interaction</p>
+          <p className="text-xs text-muted-foreground">{agents.length} actions queued — {completedCount}/{agents.length} confirmed</p>
         </div>
       </div>
 
