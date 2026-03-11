@@ -31,6 +31,7 @@ export interface ConversationPanelHandle {
 interface ConversationPanelProps {
   customer: CustomerData;
   onCustomerUpdate: (update: CustomerUpdate) => void;
+  onActionDetected?: (actionTitle: string) => void;
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
