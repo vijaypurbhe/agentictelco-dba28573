@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -17,12 +17,12 @@ import {
 import { ActionCard } from "./ActionCard";
 import { StepProgress } from "./StepProgress";
 import { CustomerContext } from "./CustomerContext";
-import { QuickSelectCard } from "./QuickSelectCard";
 import { InteractionTimeline } from "./InteractionTimeline";
-import { DynamicActionContent } from "./DynamicActionContent";
+import { ActiveAgentSection } from "./ActiveAgentSection";
+import { CombinedCheckout } from "./CombinedCheckout";
 import { CustomerData, TimelineEvent } from "@/types/customer";
 
-const steps = ["Identify", "Analyze", "Recommend", "Execute", "Confirm"];
+const stepLabels = ["Identify", "Analyze", "Recommend", "Execute", "Confirm"];
 
 const actionPrompts: Record<string, string> = {
   "Plan Upgrade": "The customer wants to explore a plan upgrade. Recommend the best upgrade from Unlimited Basic, explain the benefits, pricing difference, ARPU impact, and provide talking points to handle price objections.",
@@ -48,6 +48,12 @@ const actions = [
   { icon: Users, title: "Multi-Line Management", description: "Add, remove, or transfer lines. Family plan optimization.", tag: "Account", tagColor: "primary" as const, agentName: "Lines Agent" },
 ];
 
+interface ActiveAgent {
+  title: string;
+  step: number;
+  activatedAtTurn: number;
+  collapsed: boolean;
+}
 
 interface AgentPanelProps {
   onActionClick?: (prompt: string) => void;
@@ -59,48 +65,95 @@ interface AgentPanelProps {
 }
 
 export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0 }: AgentPanelProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const actionTurnRef = useRef(0);
+  const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([]);
+  const lastExternalActionRef = useRef<string | null>(null);
 
-  // Sync when an action is detected from conversation (voice/typed)
+  // Derive the "lead" agent (most recently activated) for step progress display
+  const leadAgent = activeAgents.length > 0 ? activeAgents[activeAgents.length - 1] : null;
+  const overallStep = leadAgent?.step ?? 0;
+
+  // Sync external action detection — ADD to active agents, don't replace
   useEffect(() => {
-    if (externalAction && externalAction !== selectedAction) {
-      setSelectedAction(externalAction);
-      setCurrentStep(1);
-      actionTurnRef.current = conversationTurn;
+    if (externalAction && externalAction !== lastExternalActionRef.current) {
+      lastExternalActionRef.current = externalAction;
+      setActiveAgents((prev) => {
+        const exists = prev.find((a) => a.title === externalAction);
+        if (exists) {
+          // Already active — just uncollapse it
+          return prev.map((a) =>
+            a.title === externalAction ? { ...a, collapsed: false } : a
+          );
+        }
+        // Collapse existing agents, add new one expanded
+        return [
+          ...prev.map((a) => ({ ...a, collapsed: true })),
+          { title: externalAction, step: 1, activatedAtTurn: conversationTurn, collapsed: false },
+        ];
+      });
     }
-  }, [externalAction]);
+  }, [externalAction, conversationTurn]);
 
-  // Advance steps as conversation progresses while an action is active
+  // Advance the lead agent's step based on conversation turns
   useEffect(() => {
-    if (selectedAction && conversationTurn > actionTurnRef.current) {
-      const turnsSinceAction = conversationTurn - actionTurnRef.current;
-      const newStep = Math.min(turnsSinceAction + 1, steps.length - 1);
-      setCurrentStep(newStep);
+    if (leadAgent && conversationTurn > leadAgent.activatedAtTurn) {
+      const turnsSince = conversationTurn - leadAgent.activatedAtTurn;
+      const newStep = Math.min(turnsSince + 1, stepLabels.length - 1);
+      setActiveAgents((prev) =>
+        prev.map((a, i) =>
+          i === prev.length - 1 ? { ...a, step: newStep } : a
+        )
+      );
     }
-  }, [conversationTurn, selectedAction]);
+  }, [conversationTurn, leadAgent]);
 
-  const handleAction = (title: string) => {
-    if (selectedAction !== title) {
-      setCurrentStep(1);
-      setSelectedAction(title);
-    } else {
-      setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
-    }
+  const handleAction = useCallback((title: string) => {
+    setActiveAgents((prev) => {
+      const exists = prev.find((a) => a.title === title);
+      if (exists) {
+        // Already active — uncollapse and advance step
+        return prev.map((a) =>
+          a.title === title
+            ? { ...a, collapsed: false, step: Math.min(a.step + 1, stepLabels.length - 1) }
+            : a
+        );
+      }
+      // Add new agent, collapse others
+      return [
+        ...prev.map((a) => ({ ...a, collapsed: true })),
+        { title, step: 1, activatedAtTurn: conversationTurn, collapsed: false },
+      ];
+    });
 
     const prompt = actionPrompts[title];
-    if (prompt && onActionClick) {
-      onActionClick(prompt);
-    }
-  };
+    if (prompt && onActionClick) onActionClick(prompt);
+  }, [conversationTurn, onActionClick]);
 
-  const handleBack = () => {
-    setSelectedAction(null);
-    setCurrentStep(0);
-  };
+  const handleRemoveAgent = useCallback((title: string) => {
+    setActiveAgents((prev) => prev.filter((a) => a.title !== title));
+  }, []);
 
-  const selectedActionData = actions.find((a) => a.title === selectedAction);
+  const handleToggleCollapse = useCallback((title: string) => {
+    setActiveAgents((prev) =>
+      prev.map((a) => (a.title === title ? { ...a, collapsed: !a.collapsed } : a))
+    );
+  }, []);
+
+  const handleAgentBack = useCallback((title: string) => {
+    handleRemoveAgent(title);
+  }, [handleRemoveAgent]);
+
+  const handleExecuteAll = useCallback(() => {
+    const summary = activeAgents.map((a) => a.title).join(", ");
+    const prompt = `Execute the following combined actions for this customer: ${summary}. Provide a unified summary of all changes, total monthly cost impact, and confirmation for the customer.`;
+    if (onActionClick) onActionClick(prompt);
+    // Advance all to final step
+    setActiveAgents((prev) =>
+      prev.map((a) => ({ ...a, step: stepLabels.length - 1 }))
+    );
+  }, [activeAgents, onActionClick]);
+
+  const hasActiveAgents = activeAgents.length > 0;
+  const activeActionTitles = activeAgents.map((a) => a.title);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -113,42 +166,43 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
               Multi-Agent Orchestrator
             </span>
             <span className="text-sm text-muted-foreground">
-              {selectedAction ? `${selectedActionData?.agentName} active` : "9 agents ready"}
+              {hasActiveAgents
+                ? `${activeAgents.length} agent${activeAgents.length > 1 ? "s" : ""} active`
+                : "9 agents ready"}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Step {currentStep + 1} of {steps.length}</span>
+            <span className="text-xs font-medium text-muted-foreground">Step {overallStep + 1} of {stepLabels.length}</span>
           </div>
         </div>
-        <StepProgress steps={steps} currentStep={currentStep} />
+        <StepProgress steps={stepLabels} currentStep={overallStep} />
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-5 space-y-5">
         <CustomerContext customer={customer} />
 
-        {/* Agent Ribbon — always visible */}
+        {/* Agent Ribbon */}
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
             <Sparkles className="w-4 h-4 text-primary" />
             <h3 className="font-bold text-sm text-foreground">
-              {selectedAction ? "Switch Agent" : "AI Agent Recommendations"}
+              {hasActiveAgents ? "Add Another Agent" : "AI Agent Recommendations"}
             </h3>
-            {selectedAction && (
-              <span className="text-xs text-muted-foreground ml-auto">Tap any agent to switch</span>
+            {hasActiveAgents && (
+              <span className="text-xs text-muted-foreground ml-auto">Tap to add to current flow</span>
             )}
           </div>
 
-          {!selectedAction && (
+          {!hasActiveAgents && (
             <p className="text-sm text-muted-foreground leading-relaxed">
               Pick an agent below to get started. Each one handles a different task.
             </p>
           )}
 
           <AnimatePresence mode="wait">
-            {selectedAction ? (
-              /* Compact horizontal ribbon when an agent is active */
+            {hasActiveAgents ? (
               <motion.div
                 key="ribbon"
                 initial={{ opacity: 0, height: 0 }}
@@ -158,7 +212,7 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
               >
                 {actions.map((action) => {
                   const Icon = action.icon;
-                  const isActive = action.title === selectedAction;
+                  const isActive = activeActionTitles.includes(action.title);
                   return (
                     <motion.button
                       key={action.title}
@@ -179,7 +233,6 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
                 })}
               </motion.div>
             ) : (
-              /* Full grid when no agent is selected */
               <motion.div
                 key="grid"
                 initial={{ opacity: 0 }}
@@ -195,39 +248,50 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
           </AnimatePresence>
         </div>
 
-        {/* Active agent flow detail */}
-        <AnimatePresence mode="wait">
-          {selectedAction && (
-            <motion.div
-              key={`flow-${selectedAction}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-5"
-            >
-              <QuickSelectCard
-                actionTitle={selectedAction}
-                externalSelectedId={externalOption}
-                onSelect={(prompt) => {
-                  setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
-                  if (onActionClick) onActionClick(prompt);
-                }}
-              />
-
-              <DynamicActionContent
-                actionTitle={selectedAction}
-                currentStep={currentStep}
-                customer={customer}
-                onBack={handleBack}
-                onNextStep={(prompt) => {
-                  setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
-                  if (onActionClick) onActionClick(prompt);
-                }}
-              />
-            </motion.div>
-          )}
+        {/* Active Agent Sections — stacked & collapsible */}
+        <AnimatePresence>
+          {activeAgents.map((agent) => (
+            <ActiveAgentSection
+              key={agent.title}
+              actionTitle={agent.title}
+              currentStep={agent.step}
+              customer={customer}
+              externalOptionId={
+                externalOption && externalAction === agent.title ? externalOption : null
+              }
+              isCollapsed={agent.collapsed}
+              onToggleCollapse={() => handleToggleCollapse(agent.title)}
+              onRemove={() => handleRemoveAgent(agent.title)}
+              onOptionSelect={(prompt) => {
+                setActiveAgents((prev) =>
+                  prev.map((a) =>
+                    a.title === agent.title
+                      ? { ...a, step: Math.min(a.step + 1, stepLabels.length - 1) }
+                      : a
+                  )
+                );
+                if (onActionClick) onActionClick(prompt);
+              }}
+              onNextStep={(prompt) => {
+                setActiveAgents((prev) =>
+                  prev.map((a) =>
+                    a.title === agent.title
+                      ? { ...a, step: Math.min(a.step + 1, stepLabels.length - 1) }
+                      : a
+                  )
+                );
+                if (onActionClick) onActionClick(prompt);
+              }}
+              onBack={() => handleAgentBack(agent.title)}
+            />
+          ))}
         </AnimatePresence>
+
+        {/* Combined Checkout */}
+        <CombinedCheckout
+          activeActions={activeActionTitles}
+          onExecuteAll={handleExecuteAll}
+        />
 
         <InteractionTimeline events={timeline} />
       </div>
