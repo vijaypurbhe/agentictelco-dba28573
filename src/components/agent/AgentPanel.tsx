@@ -208,6 +208,7 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
             >
               <QuickSelectCard
                 actionTitle={selectedAction}
+                externalSelectedId={externalOption}
                 onSelect={(prompt) => {
                   setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
                   if (onActionClick) onActionClick(prompt);
