@@ -289,7 +289,7 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
 
         {/* Combined Checkout */}
         <CombinedCheckout
-          activeActions={activeActionTitles}
+          agents={activeAgents.map((a) => ({ title: a.title, step: a.step, totalSteps: stepLabels.length }))}
           onExecuteAll={handleExecuteAll}
         />
 

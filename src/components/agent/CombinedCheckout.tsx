@@ -16,13 +16,22 @@ const actionIcons: Record<string, React.ElementType> = {
   "Multi-Line Management": Users,
 };
 
+interface AgentStatus {
+  title: string;
+  step: number;
+  totalSteps: number;
+}
+
 interface CombinedCheckoutProps {
-  activeActions: string[];
+  agents: AgentStatus[];
   onExecuteAll: () => void;
 }
 
-export function CombinedCheckout({ activeActions, onExecuteAll }: CombinedCheckoutProps) {
-  if (activeActions.length < 2) return null;
+export function CombinedCheckout({ agents, onExecuteAll }: CombinedCheckoutProps) {
+  if (agents.length < 2) return null;
+
+  const completedCount = agents.filter((a) => a.step >= a.totalSteps - 1).length;
+  const allComplete = completedCount === agents.length;
 
   return (
     <motion.div
@@ -36,21 +45,30 @@ export function CombinedCheckout({ activeActions, onExecuteAll }: CombinedChecko
         </div>
         <div>
           <h3 className="text-sm font-bold text-foreground">Combined Execution Summary</h3>
-          <p className="text-xs text-muted-foreground">{activeActions.length} actions queued for this interaction</p>
+          <p className="text-xs text-muted-foreground">{agents.length} actions queued — {completedCount}/{agents.length} confirmed</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        {activeActions.map((action, i) => {
-          const Icon = actionIcons[action] || TrendingUp;
+        {agents.map((agent, i) => {
+          const Icon = actionIcons[agent.title] || TrendingUp;
+          const isComplete = agent.step >= agent.totalSteps - 1;
           return (
-            <div key={action} className="flex items-center gap-3 p-3 rounded-lg bg-muted/40 border border-border/40">
-              <span className="w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+            <div key={agent.title} className={`flex items-center gap-3 p-3 rounded-lg border ${
+              isComplete ? "bg-success/5 border-success/30" : "bg-muted/40 border-border/40"
+            }`}>
+              <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
+                isComplete ? "bg-success/15 text-success" : "bg-primary/15 text-primary"
+              }`}>
                 {i + 1}
               </span>
-              <Icon className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-sm font-medium text-foreground flex-1">{action}</span>
-              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+              <Icon className={`w-4 h-4 shrink-0 ${isComplete ? "text-success" : "text-primary"}`} />
+              <span className="text-sm font-medium text-foreground flex-1">{agent.title}</span>
+              {isComplete ? (
+                <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+              ) : (
+                <span className="text-[10px] text-muted-foreground shrink-0">Step {agent.step + 1}/{agent.totalSteps}</span>
+              )}
             </div>
           );
         })}
@@ -63,7 +81,7 @@ export function CombinedCheckout({ activeActions, onExecuteAll }: CombinedChecko
         className="w-full flex items-center justify-center gap-2 py-4 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all min-h-[48px]"
       >
         <ShoppingCart className="w-4 h-4" />
-        Execute All {activeActions.length} Actions
+        Execute All {agents.length} Actions
         <ArrowRight className="w-4 h-4" />
       </motion.button>
     </motion.div>
