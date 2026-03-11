@@ -103,6 +103,12 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     setMessages(updatedMessages);
     setInput("");
     resetTranscript();
+
+    // Detect intent and notify parent to sync agent panel
+    const detectedAction = detectActionIntent(text);
+    if (detectedAction && onActionDetected) {
+      onActionDetected(detectedAction);
+    }
     setIsLoading(true);
     customerUpdateApplied.current = false;
 
