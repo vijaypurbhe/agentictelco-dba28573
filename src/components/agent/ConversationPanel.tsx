@@ -35,7 +35,7 @@ interface ConversationPanelProps {
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
-  ({ customer, onCustomerUpdate }, ref) => {
+  ({ customer, onCustomerUpdate, onActionDetected }, ref) => {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "system",
