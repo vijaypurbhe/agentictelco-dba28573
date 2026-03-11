@@ -107,9 +107,12 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     resetTranscript();
 
     // Detect intent and notify parent to sync agent panel
-    const detectedAction = detectActionIntent(text);
-    if (detectedAction && onActionDetected) {
-      onActionDetected(detectedAction);
+    const intent = detectFullIntent(text);
+    if (intent.action && onActionDetected) {
+      onActionDetected(intent.action);
+    }
+    if (intent.optionId && onOptionDetected) {
+      onOptionDetected(intent.optionId);
     }
     // Notify parent that a message was sent (for step progression)
     onMessageSent?.();
