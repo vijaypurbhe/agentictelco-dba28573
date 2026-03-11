@@ -5,6 +5,7 @@ import { ConversationPanel, ConversationPanelHandle } from "@/components/agent/C
 import { AgentPanel } from "@/components/agent/AgentPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CustomerData, TimelineEvent, CustomerUpdate, DEFAULT_CUSTOMER, DEFAULT_TIMELINE } from "@/types/customer";
+import Login from "./Login";
 
 const Index = () => {
   const conversationRef = useRef<ConversationPanelHandle>(null);
@@ -15,6 +16,9 @@ const Index = () => {
   const [detectedAction, setDetectedAction] = useState<string | null>(null);
   const [detectedOption, setDetectedOption] = useState<string | null>(null);
   const [conversationTurn, setConversationTurn] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => !!sessionStorage.getItem("demo_auth_email")
+  );
 
   const handleActionClick = (prompt: string) => {
     conversationRef.current?.sendMessage(prompt);
@@ -39,12 +43,15 @@ const Index = () => {
     setDetectedOption(optionId);
   }, []);
 
+  if (!isAuthenticated) {
+    return <Login onAuthenticated={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <TopBar />
 
       {!isMobile ? (
-        /* Desktop: side-by-side */
         <div className="flex flex-1 overflow-hidden">
           <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
             <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} />
@@ -54,7 +61,6 @@ const Index = () => {
           </div>
         </div>
       ) : (
-        /* Mobile/Tablet: tab switching — both panels always mounted */
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             <div className={`absolute inset-0 ${activeTab === "chat" ? "" : "invisible"}`}>
@@ -65,7 +71,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Bottom tab bar */}
           <div className="border-t border-border/50 bg-card/80 backdrop-blur-xl flex">
             <button
               onClick={() => setActiveTab("chat")}
