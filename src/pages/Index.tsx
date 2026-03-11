@@ -24,6 +24,10 @@ const Index = () => {
     setTimeline(update.timeline);
   }, []);
 
+  const handleActionDetected = useCallback((actionTitle: string) => {
+    setDetectedAction(actionTitle);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <TopBar />
