@@ -27,7 +27,8 @@ const Index = () => {
 
   const handleActionDetected = useCallback((actionTitle: string) => {
     setDetectedAction(actionTitle);
-  }, []);
+    if (isMobile) setActiveTab("agent");
+  }, [isMobile]);
 
   const handleMessageSent = useCallback(() => {
     setConversationTurn((t) => t + 1);
