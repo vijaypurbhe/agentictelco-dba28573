@@ -12,6 +12,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<"chat" | "agent">("chat");
   const [customer, setCustomer] = useState<CustomerData>(DEFAULT_CUSTOMER);
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
+  const [detectedAction, setDetectedAction] = useState<string | null>(null);
 
   const handleActionClick = (prompt: string) => {
     conversationRef.current?.sendMessage(prompt);
