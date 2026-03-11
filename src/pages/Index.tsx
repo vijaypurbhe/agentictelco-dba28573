@@ -13,6 +13,7 @@ const Index = () => {
   const [customer, setCustomer] = useState<CustomerData>(DEFAULT_CUSTOMER);
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
   const [detectedAction, setDetectedAction] = useState<string | null>(null);
+  const [detectedOption, setDetectedOption] = useState<string | null>(null);
   const [conversationTurn, setConversationTurn] = useState(0);
 
   const handleActionClick = (prompt: string) => {
