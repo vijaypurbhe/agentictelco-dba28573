@@ -32,10 +32,11 @@ interface ConversationPanelProps {
   customer: CustomerData;
   onCustomerUpdate: (update: CustomerUpdate) => void;
   onActionDetected?: (actionTitle: string) => void;
+  onMessageSent?: () => void;
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
-  ({ customer, onCustomerUpdate, onActionDetected }, ref) => {
+  ({ customer, onCustomerUpdate, onActionDetected, onMessageSent }, ref) => {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "system",
@@ -109,6 +110,8 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     if (detectedAction && onActionDetected) {
       onActionDetected(detectedAction);
     }
+    // Notify parent that a message was sent (for step progression)
+    onMessageSent?.();
     setIsLoading(true);
     customerUpdateApplied.current = false;
 

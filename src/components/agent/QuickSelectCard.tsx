@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   TrendingUp,
@@ -106,9 +107,15 @@ const selectPrompts: Record<string, (option: QuickOption) => string> = {
 };
 
 export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const options = actionOptions[actionTitle] || [];
   const Icon = actionIcons[actionTitle] || TrendingUp;
   const promptBuilder = selectPrompts[actionTitle];
+
+  const handleSelect = (option: QuickOption) => {
+    setSelectedId(option.id);
+    if (promptBuilder) onSelect(promptBuilder(option));
+  };
 
   return (
     <motion.div
@@ -127,33 +134,45 @@ export function QuickSelectCard({ actionTitle, onSelect }: QuickSelectCardProps)
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        {options.map((option, i) => (
-          <motion.button
-            key={option.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            onClick={() => promptBuilder && onSelect(promptBuilder(option))}
-            className={`relative flex flex-col items-center text-center gap-2 p-4 rounded-xl transition-all group hover:scale-[1.03] active:scale-[0.97] min-h-[110px] ${
-              option.highlight
-                ? "bg-primary/15 border-2 border-primary/40 shadow-md shadow-primary/10"
-                : "bg-muted/50 border border-border/50 hover:bg-muted/70 hover:border-border"
-            }`}
-          >
-            {option.highlight && (
-              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-3 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
-                Best
-              </span>
-            )}
-            {option.price && (
-              <span className={`text-lg font-bold mt-1 ${option.highlight ? "text-primary" : "text-foreground"}`}>
-                {option.price}
-              </span>
-            )}
-            <span className="text-sm font-bold text-foreground leading-tight">{option.label}</span>
-            <p className="text-xs text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
-          </motion.button>
-        ))}
+        {options.map((option, i) => {
+          const isSelected = selectedId === option.id;
+          const isRecommended = option.highlight && !selectedId;
+
+          return (
+            <motion.button
+              key={option.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              onClick={() => handleSelect(option)}
+              className={`relative flex flex-col items-center text-center gap-2 p-4 rounded-xl transition-all group hover:scale-[1.03] active:scale-[0.97] min-h-[110px] ${
+                isSelected
+                  ? "bg-primary/15 border-2 border-primary shadow-md shadow-primary/10 ring-2 ring-primary/20"
+                  : isRecommended
+                  ? "bg-primary/10 border-2 border-primary/40 shadow-md shadow-primary/10"
+                  : "bg-muted/50 border border-border/50 hover:bg-muted/70 hover:border-border"
+              }`}
+            >
+              {option.highlight && !selectedId && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-3 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
+                  Best
+                </span>
+              )}
+              {isSelected && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-3 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
+                  Selected
+                </span>
+              )}
+              {option.price && (
+                <span className={`text-lg font-bold mt-1 ${isSelected || isRecommended ? "text-primary" : "text-foreground"}`}>
+                  {option.price}
+                </span>
+              )}
+              <span className="text-sm font-bold text-foreground leading-tight">{option.label}</span>
+              <p className="text-xs text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
+            </motion.button>
+          );
+        })}
       </div>
     </motion.div>
   );
