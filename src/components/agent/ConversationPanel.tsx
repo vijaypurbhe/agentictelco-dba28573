@@ -110,6 +110,8 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     if (detectedAction && onActionDetected) {
       onActionDetected(detectedAction);
     }
+    // Notify parent that a message was sent (for step progression)
+    onMessageSent?.();
     setIsLoading(true);
     customerUpdateApplied.current = false;
 
