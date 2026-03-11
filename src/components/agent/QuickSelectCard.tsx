@@ -23,6 +23,7 @@ interface QuickOption {
 interface QuickSelectCardProps {
   actionTitle: string;
   onSelect: (prompt: string) => void;
+  externalSelectedId?: string | null;
 }
 
 const actionOptions: Record<string, QuickOption[]> = {
