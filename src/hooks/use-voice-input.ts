@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { blobToBase64, convertAudioBlobToWav, detectAudioFormat } from "@/lib/audio";
+import { blobToBase64, detectAudioFormat } from "@/lib/audio";
 
 const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
 const MIN_AUDIO_SIZE_BYTES = 1024;
