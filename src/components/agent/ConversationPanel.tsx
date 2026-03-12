@@ -11,6 +11,14 @@ type Msg = { role: "user" | "assistant" | "system"; content: string; timestamp: 
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-chat`;
 
+export interface QuickOption {
+  id: string;
+  label: string;
+  sublabel: string;
+  price?: string;
+  highlight?: boolean;
+}
+
 function parseCustomerUpdate(content: string): { update: CustomerUpdate | null; cleanContent: string } {
   const regex = /<customer_update>\s*([\s\S]*?)\s*<\/customer_update>/;
   const match = content.match(regex);
@@ -22,6 +30,19 @@ function parseCustomerUpdate(content: string): { update: CustomerUpdate | null; 
     }
   } catch { /* ignore parse errors */ }
   return { update: null, cleanContent: content };
+}
+
+function parseQuickOptions(content: string): { options: QuickOption[] | null; cleanContent: string } {
+  const regex = /<quick_options>\s*([\s\S]*?)\s*<\/quick_options>/;
+  const match = content.match(regex);
+  if (!match) return { options: null, cleanContent: content };
+  try {
+    const parsed = JSON.parse(match[1]);
+    if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].id && parsed[0].label) {
+      return { options: parsed as QuickOption[], cleanContent: content.replace(regex, "").trim() };
+    }
+  } catch { /* ignore parse errors */ }
+  return { options: null, cleanContent: content };
 }
 
 export interface ConversationPanelHandle {
