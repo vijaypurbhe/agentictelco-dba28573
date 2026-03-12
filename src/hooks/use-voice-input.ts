@@ -37,6 +37,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   const isTranscribingRef = useRef(false);
   const recordingMimeTypeRef = useRef("audio/webm");
   const lastSpeechAtRef = useRef<number | null>(null);
+  const startRequestIdRef = useRef(0);
   onAutoStopRef.current = onAutoStop;
 
   const isSupported = typeof window !== "undefined"
