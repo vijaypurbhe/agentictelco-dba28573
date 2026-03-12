@@ -88,17 +88,8 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
     setInterimTranscript("Transcribing...");
 
     try {
-      let payloadBlob = audioBlob;
-      let format = detectAudioFormat(mimeType);
-
-      if (format !== "wav") {
-        try {
-          payloadBlob = await convertAudioBlobToWav(audioBlob);
-          format = "wav";
-        } catch (conversionError) {
-          console.warn("Audio conversion fallback:", conversionError);
-        }
-      }
+      const payloadBlob = audioBlob;
+      const format = detectAudioFormat(mimeType);
 
       const base64 = await blobToBase64(payloadBlob);
       const resp = await fetch(TRANSCRIBE_URL, {
