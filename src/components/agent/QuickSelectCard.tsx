@@ -111,7 +111,8 @@ const selectPrompts: Record<string, (option: QuickOption) => string> = {
 
 export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dynamicOptions }: QuickSelectCardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const options = dynamicOptions && dynamicOptions.length > 0 ? dynamicOptions : (actionOptions[actionTitle] || []);
+  const isDynamic = !!(dynamicOptions && dynamicOptions.length > 0);
+  const options = isDynamic ? dynamicOptions : (actionOptions[actionTitle] || []);
 
   // Sync external selection from voice/typed input
   useEffect(() => {
