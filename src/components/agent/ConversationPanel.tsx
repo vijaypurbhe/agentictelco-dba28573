@@ -91,7 +91,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     startListening,
     stopListening,
     resetTranscript,
-  } = useVoiceInput({ silenceTimeout: 1500, onAutoStop: handleAutoStop });
+  } = useVoiceInput({ silenceTimeout: 900, onAutoStop: handleAutoStop });
 
   useEffect(() => {
     if (transcript) {

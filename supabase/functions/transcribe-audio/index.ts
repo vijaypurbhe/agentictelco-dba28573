@@ -37,9 +37,9 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         temperature: 0,
-        max_completion_tokens: 200,
+        max_completion_tokens: 96,
         messages: [
           {
             role: "system",
@@ -137,10 +137,6 @@ function sanitizeTranscript(value: unknown, languageHint: string) {
   if (languageHint.toLowerCase().startsWith("en") && !looksMostlyLatin(transcript)) {
     return "";
   }
-
-  // Reject very short transcripts (likely hallucinations)
-  const wordCount = transcript.split(/\s+/).filter(Boolean).length;
-  if (wordCount < 2) return "";
 
   return transcript;
 }

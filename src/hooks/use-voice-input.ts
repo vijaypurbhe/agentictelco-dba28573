@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { blobToBase64, convertAudioBlobToWav, detectAudioFormat } from "@/lib/audio";
+import { blobToBase64, detectAudioFormat } from "@/lib/audio";
 
 const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
 const MIN_AUDIO_SIZE_BYTES = 1024;
-const RMS_SPEECH_THRESHOLD = 0.035;
-const MIN_SPEECH_DURATION_MS = 500;
+const RMS_SPEECH_THRESHOLD = 0.028;
+const MIN_SPEECH_DURATION_MS = 250;
 const MAX_RECORDING_MS = 15000;
 
 interface UseVoiceInputOptions {
@@ -37,6 +37,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   const isTranscribingRef = useRef(false);
   const recordingMimeTypeRef = useRef("audio/webm");
   const lastSpeechAtRef = useRef<number | null>(null);
+  const startRequestIdRef = useRef(0);
   onAutoStopRef.current = onAutoStop;
 
   const isSupported = typeof window !== "undefined"
@@ -87,17 +88,8 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
     setInterimTranscript("Transcribing...");
 
     try {
-      let payloadBlob = audioBlob;
-      let format = detectAudioFormat(mimeType);
-
-      if (format !== "wav") {
-        try {
-          payloadBlob = await convertAudioBlobToWav(audioBlob);
-          format = "wav";
-        } catch (conversionError) {
-          console.warn("Audio conversion fallback:", conversionError);
-        }
-      }
+      const payloadBlob = audioBlob;
+      const format = detectAudioFormat(mimeType);
 
       const base64 = await blobToBase64(payloadBlob);
       const resp = await fetch(TRANSCRIBE_URL, {
@@ -141,7 +133,10 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
     clearDetectionLoop();
     releaseMediaResources();
     setTranscript("");
-    setInterimTranscript("Listening...");
+    setInterimTranscript("Preparing microphone...");
+    setIsListening(true);
+    const requestId = startRequestIdRef.current + 1;
+    startRequestIdRef.current = requestId;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -152,7 +147,13 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
           channelCount: 1,
         },
       });
+      if (startRequestIdRef.current !== requestId) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
       streamRef.current = stream;
+      setInterimTranscript("Listening...");
 
       const audioCtx = new AudioContext();
       audioCtxRef.current = audioCtx;
@@ -203,7 +204,6 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       };
 
       mediaRecorder.start(250);
-      setIsListening(true);
 
       let speechDetected = false;
       let firstSpeechAt: number | null = null;
@@ -272,6 +272,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   }, [clearDetectionLoop, isListening, isSupported, releaseMediaResources, silenceTimeout, transcribeAudio]);
 
   const stopListening = useCallback(() => {
+    startRequestIdRef.current += 1;
     clearDetectionLoop();
 
     if (mediaRecorderRef.current?.state === "recording") {
