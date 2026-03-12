@@ -3,8 +3,8 @@ import { blobToBase64, convertAudioBlobToWav, detectAudioFormat } from "@/lib/au
 
 const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
 const MIN_AUDIO_SIZE_BYTES = 1024;
-const RMS_SPEECH_THRESHOLD = 0.035;
-const MIN_SPEECH_DURATION_MS = 500;
+const RMS_SPEECH_THRESHOLD = 0.028;
+const MIN_SPEECH_DURATION_MS = 250;
 const MAX_RECORDING_MS = 15000;
 
 interface UseVoiceInputOptions {
