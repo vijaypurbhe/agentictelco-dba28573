@@ -133,7 +133,10 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
     clearDetectionLoop();
     releaseMediaResources();
     setTranscript("");
-    setInterimTranscript("Listening...");
+    setInterimTranscript("Preparing microphone...");
+    setIsListening(true);
+    const requestId = startRequestIdRef.current + 1;
+    startRequestIdRef.current = requestId;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
