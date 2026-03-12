@@ -53,6 +53,7 @@ export function ActiveAgentSection({
   actionTitle,
   currentStep,
   customer,
+  dynamicQuickOptions,
   externalOptionId,
   isCollapsed,
   onToggleCollapse,
