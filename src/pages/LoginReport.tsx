@@ -117,7 +117,9 @@ const LoginReport = () => {
                   <TableRow>
                     <TableHead>Email</TableHead>
                     <TableHead>Date &amp; Time</TableHead>
-                    <TableHead className="hidden md:table-cell">Browser</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead className="hidden md:table-cell">IP</TableHead>
+                    <TableHead className="hidden lg:table-cell">Browser</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -127,7 +129,13 @@ const LoginReport = () => {
                       <TableCell className="text-muted-foreground">
                         {new Date(entry.logged_in_at).toLocaleString()}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell text-muted-foreground text-xs max-w-[300px] truncate">
+                      <TableCell className="text-muted-foreground text-sm">
+                        {entry.location || "—"}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground text-xs">
+                        {entry.ip_address || "—"}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-muted-foreground text-xs max-w-[300px] truncate">
                         {entry.user_agent || "—"}
                       </TableCell>
                     </TableRow>
