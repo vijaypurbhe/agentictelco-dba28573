@@ -131,9 +131,16 @@ function sanitizeTranscript(value: unknown, languageHint: string) {
   const transcript = value.trim().replace(/^['"`\s]+|['"`\s]+$/g, "");
   if (!transcript) return "";
 
+  // Model returns "EMPTY" for unclear audio
+  if (transcript.toUpperCase() === "EMPTY") return "";
+
   if (languageHint.toLowerCase().startsWith("en") && !looksMostlyLatin(transcript)) {
     return "";
   }
+
+  // Reject very short transcripts (likely hallucinations)
+  const wordCount = transcript.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 2) return "";
 
   return transcript;
 }
