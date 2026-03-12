@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { QuickOption } from "./ConversationPanel";
 import { ChevronDown, X, CheckCircle2 } from "lucide-react";
 import {
   TrendingUp, Zap, Gift, Smartphone, Wifi, Shield, Receipt, Power, Users,
