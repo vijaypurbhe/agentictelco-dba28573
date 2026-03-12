@@ -3,7 +3,8 @@ import { blobToBase64, convertAudioBlobToWav, detectAudioFormat } from "@/lib/au
 
 const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
 const MIN_AUDIO_SIZE_BYTES = 1024;
-const RMS_SPEECH_THRESHOLD = 0.025;
+const RMS_SPEECH_THRESHOLD = 0.035;
+const MIN_SPEECH_DURATION_MS = 500;
 const MAX_RECORDING_MS = 15000;
 
 interface UseVoiceInputOptions {
@@ -205,6 +206,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       setIsListening(true);
 
       let speechDetected = false;
+      let firstSpeechAt: number | null = null;
       const startedAt = performance.now();
       const pcmData = new Uint8Array(analyser.fftSize);
 
@@ -230,9 +232,22 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
         const now = performance.now();
 
         if (rms >= RMS_SPEECH_THRESHOLD) {
+          if (!speechDetected) firstSpeechAt = now;
           speechDetected = true;
           lastSpeechAtRef.current = now;
         } else if (speechDetected && lastSpeechAtRef.current && now - lastSpeechAtRef.current >= silenceTimeout) {
+          // Only transcribe if speech lasted long enough
+          const speechDuration = firstSpeechAt ? (lastSpeechAtRef.current - firstSpeechAt) : 0;
+          if (speechDuration < MIN_SPEECH_DURATION_MS) {
+            // Too short — discard
+            if (mediaRecorderRef.current?.state === "recording") {
+              mediaRecorderRef.current.stop();
+            }
+            setIsListening(false);
+            setTranscript("");
+            setInterimTranscript("");
+            return;
+          }
           stopRecording();
           return;
         }

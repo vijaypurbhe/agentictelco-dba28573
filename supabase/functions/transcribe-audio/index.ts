@@ -37,22 +37,23 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         temperature: 0,
-        max_completion_tokens: 120,
+        max_completion_tokens: 200,
         messages: [
           {
             role: "system",
             content: [
-              "You are a speech-to-text engine for short voice commands.",
+              "You are a precise speech-to-text transcription engine for a telecom customer service agent application.",
               `Primary language hint: ${normalizedLanguageHint}.`,
-              "Transcribe exactly what is spoken.",
-              "Do not translate.",
-              "Do not summarize.",
-              "Do not infer missing words.",
-              "If the audio is unclear, silent, mostly noise, music, singing, solfege, or not understandable, return an empty string.",
-              "Return only the transcript text with no labels or quotes.",
-            ].join(" "),
+              "RULES:",
+              "1. Transcribe ONLY clearly spoken words exactly as heard.",
+              "2. Do NOT translate, paraphrase, summarize, or add words.",
+              "3. Do NOT guess or hallucinate words from ambiguous sounds.",
+              "4. If the audio contains silence, noise, breathing, humming, music, beeps, or unintelligible mumbling, return EXACTLY: EMPTY",
+              "5. If fewer than 2 clear words are discernible, return EXACTLY: EMPTY",
+              "6. Return ONLY the raw transcript text — no quotes, no labels, no punctuation unless clearly spoken.",
+            ].join("\n"),
           },
           {
             role: "user",
@@ -66,7 +67,7 @@ serve(async (req) => {
               },
               {
                 type: "text",
-                text: `Transcribe this voice command in ${normalizedLanguageHint}. If it is not clear spoken language, return an empty string.`,
+                text: `Transcribe the spoken words. Return EMPTY if unclear.`,
               },
             ],
           },
@@ -130,9 +131,16 @@ function sanitizeTranscript(value: unknown, languageHint: string) {
   const transcript = value.trim().replace(/^['"`\s]+|['"`\s]+$/g, "");
   if (!transcript) return "";
 
+  // Model returns "EMPTY" for unclear audio
+  if (transcript.toUpperCase() === "EMPTY") return "";
+
   if (languageHint.toLowerCase().startsWith("en") && !looksMostlyLatin(transcript)) {
     return "";
   }
+
+  // Reject very short transcripts (likely hallucinations)
+  const wordCount = transcript.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 2) return "";
 
   return transcript;
 }
