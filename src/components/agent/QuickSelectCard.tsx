@@ -131,7 +131,13 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
 
   const handleSelect = (option: QuickOption) => {
     setSelectedId(option.id);
-    if (promptBuilder) onSelect(promptBuilder(option));
+    // For dynamic options, build a generic prompt; for hardcoded, use the specific builder
+    if (dynamicOptions && dynamicOptions.length > 0) {
+      const prompt = `The customer has selected "${option.label}" (${option.sublabel}) at ${option.price || "N/A"}. Process this selection now. Confirm the details and next steps.`;
+      onSelect(prompt);
+    } else if (promptBuilder) {
+      onSelect(promptBuilder(option));
+    }
   };
 
   return (
