@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import techMahindraLogo from "@/assets/tech-mahindra-logo.png";
 
 interface LoginProps {
@@ -24,6 +25,11 @@ const Login = ({ onAuthenticated }: LoginProps) => {
       return;
     }
     sessionStorage.setItem("demo_auth_email", trimmed);
+    // Log the login attempt
+    supabase.from("login_audit_log").insert({
+      email: trimmed,
+      user_agent: navigator.userAgent,
+    }).then(() => {});
     onAuthenticated();
   };
 
