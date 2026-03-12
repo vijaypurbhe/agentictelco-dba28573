@@ -10,6 +10,7 @@ import {
   Receipt,
   Power,
   Users,
+  Sparkles,
 } from "lucide-react";
 
 interface QuickOption {
