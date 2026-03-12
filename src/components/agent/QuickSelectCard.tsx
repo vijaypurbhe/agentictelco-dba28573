@@ -151,10 +151,20 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
         <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
           <Icon className="w-5 h-5 text-primary" />
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="text-sm font-bold text-foreground">Pick one option below</h3>
           <p className="text-xs text-muted-foreground">Tap to proceed with the customer</p>
         </div>
+        {isDynamic && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/15 border border-accent/30 text-accent text-[11px] font-bold uppercase tracking-wider"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            AI Recommended
+          </motion.span>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-3">
