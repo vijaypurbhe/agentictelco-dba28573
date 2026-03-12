@@ -25,6 +25,11 @@ const Login = ({ onAuthenticated }: LoginProps) => {
       return;
     }
     sessionStorage.setItem("demo_auth_email", trimmed);
+    // Log the login attempt
+    supabase.from("login_audit_log").insert({
+      email: trimmed,
+      user_agent: navigator.userAgent,
+    }).then(() => {});
     onAuthenticated();
   };
 
