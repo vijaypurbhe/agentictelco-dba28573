@@ -44,6 +44,10 @@ const Index = () => {
     setDetectedOption(optionId);
   }, []);
 
+  const handleQuickOptionsDetected = useCallback((options: QuickOption[]) => {
+    setDynamicQuickOptions(options);
+  }, []);
+
   if (!isAuthenticated) {
     return <Login onAuthenticated={() => setIsAuthenticated(true)} />;
   }
