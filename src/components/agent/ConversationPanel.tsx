@@ -55,6 +55,7 @@ interface ConversationPanelProps {
   onActionDetected?: (actionTitle: string) => void;
   onOptionDetected?: (optionId: string) => void;
   onMessageSent?: () => void;
+  onQuickOptionsDetected?: (options: QuickOption[]) => void;
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
