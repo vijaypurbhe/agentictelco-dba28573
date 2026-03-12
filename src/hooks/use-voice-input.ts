@@ -272,6 +272,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   }, [clearDetectionLoop, isListening, isSupported, releaseMediaResources, silenceTimeout, transcribeAudio]);
 
   const stopListening = useCallback(() => {
+    startRequestIdRef.current += 1;
     clearDetectionLoop();
 
     if (mediaRecorderRef.current?.state === "recording") {
