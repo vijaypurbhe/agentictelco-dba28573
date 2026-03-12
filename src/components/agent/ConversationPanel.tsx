@@ -173,12 +173,17 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
       let textBuffer = "";
 
       const upsertAssistant = (content: string) => {
-        const { update, cleanContent } = parseCustomerUpdate(content);
+        const { update, cleanContent: c1 } = parseCustomerUpdate(content);
         if (update && !customerUpdateApplied.current) {
           customerUpdateApplied.current = true;
           onCustomerUpdate(update);
         }
-        const displayContent = cleanContent || content;
+        const { options: quickOpts, cleanContent: c2 } = parseQuickOptions(c1 || content);
+        if (quickOpts && !quickOptionsApplied) {
+          quickOptionsApplied = true;
+          onQuickOptionsDetected?.(quickOpts);
+        }
+        const displayContent = c2 || c1 || content;
 
         const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         setMessages((prev) => {
