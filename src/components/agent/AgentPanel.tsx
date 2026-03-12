@@ -63,9 +63,10 @@ interface AgentPanelProps {
   externalAction?: string | null;
   externalOption?: string | null;
   conversationTurn?: number;
+  dynamicQuickOptions?: QuickOption[] | null;
 }
 
-export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0 }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0, dynamicQuickOptions }: AgentPanelProps) {
   const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([]);
   const lastExternalActionRef = useRef<string | null>(null);
 
