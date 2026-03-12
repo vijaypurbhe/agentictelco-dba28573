@@ -18,18 +18,24 @@ export type Database = {
         Row: {
           email: string
           id: string
+          ip_address: string | null
+          location: string | null
           logged_in_at: string
           user_agent: string | null
         }
         Insert: {
           email: string
           id?: string
+          ip_address?: string | null
+          location?: string | null
           logged_in_at?: string
           user_agent?: string | null
         }
         Update: {
           email?: string
           id?: string
+          ip_address?: string | null
+          location?: string | null
           logged_in_at?: string
           user_agent?: string | null
         }

@@ -1,0 +1,1 @@
+ALTER TABLE public.login_audit_log ADD COLUMN ip_address text, ADD COLUMN location text;
