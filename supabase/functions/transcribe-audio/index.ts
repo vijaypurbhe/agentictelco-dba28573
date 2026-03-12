@@ -138,10 +138,6 @@ function sanitizeTranscript(value: unknown, languageHint: string) {
     return "";
   }
 
-  // Reject very short transcripts (likely hallucinations)
-  const wordCount = transcript.split(/\s+/).filter(Boolean).length;
-  if (wordCount < 2) return "";
-
   return transcript;
 }
 
