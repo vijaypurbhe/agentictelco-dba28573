@@ -258,6 +258,9 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
               actionTitle={agent.title}
               currentStep={agent.step}
               customer={customer}
+              dynamicQuickOptions={
+                externalAction === agent.title ? dynamicQuickOptions : null
+              }
               externalOptionId={
                 externalOption && externalAction === agent.title ? externalOption : null
               }
