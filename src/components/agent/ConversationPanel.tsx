@@ -140,6 +140,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     onMessageSent?.();
     setIsLoading(true);
     customerUpdateApplied.current = false;
+    let quickOptionsApplied = false;
 
     const apiMessages = updatedMessages
       .filter((m) => m.role !== "system")
