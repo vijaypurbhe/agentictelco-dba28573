@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { QuickOption } from "./ConversationPanel";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
