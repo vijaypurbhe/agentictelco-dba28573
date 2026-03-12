@@ -15,6 +15,7 @@ const Index = () => {
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
   const [detectedAction, setDetectedAction] = useState<string | null>(null);
   const [detectedOption, setDetectedOption] = useState<string | null>(null);
+  const [dynamicQuickOptions, setDynamicQuickOptions] = useState<QuickOption[] | null>(null);
   const [conversationTurn, setConversationTurn] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => !!sessionStorage.getItem("demo_auth_email")
