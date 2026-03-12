@@ -39,6 +39,7 @@ interface ActiveAgentSectionProps {
   actionTitle: string;
   currentStep: number;
   customer: CustomerData;
+  dynamicQuickOptions?: QuickOption[] | null;
   externalOptionId?: string | null;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
