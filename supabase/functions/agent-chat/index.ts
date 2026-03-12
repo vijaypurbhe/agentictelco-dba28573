@@ -87,6 +87,25 @@ RESPONSE FORMAT — CRITICAL:
 - Only elaborate if the agent explicitly asks for more detail.
 - Never repeat information the agent already knows from context.
 
+ACTIONABLE OPTIONS — CRITICAL:
+Whenever you recommend specific options the agent can offer the customer (e.g., plan choices, credit amounts, rewards, devices), you MUST include a <quick_options> JSON block in your response. This powers the clickable action tiles the agent sees. Format:
+
+<quick_options>
+[
+  { "id": "unique-id-1", "label": "Short Name", "sublabel": "One-line description of what this includes", "price": "$XX/mo or FREE or -$XX", "highlight": true },
+  { "id": "unique-id-2", "label": "Short Name", "sublabel": "One-line description", "price": "$XX/mo" },
+  { "id": "unique-id-3", "label": "Short Name", "sublabel": "One-line description", "price": "$XX/mo" }
+]
+</quick_options>
+
+Rules for <quick_options>:
+- Always provide exactly 3 options
+- Set "highlight": true on the one you recommend most strongly (only one)
+- The options MUST match what you describe in your text response — they must be in sync
+- Use clear, short labels (2-4 words max)
+- Sublabel should be a single line, max ~60 chars
+- Price should be formatted consistently ($XX/mo, FREE, -$XX, etc.)
+
 Always be specific with pricing, features, and ARPU impact.`;
 
 serve(async (req) => {
