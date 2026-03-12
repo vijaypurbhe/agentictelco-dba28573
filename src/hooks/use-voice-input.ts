@@ -204,7 +204,6 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       };
 
       mediaRecorder.start(250);
-      setIsListening(true);
 
       let speechDetected = false;
       let firstSpeechAt: number | null = null;
