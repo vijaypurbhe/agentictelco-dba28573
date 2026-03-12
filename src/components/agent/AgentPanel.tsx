@@ -141,8 +141,16 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
   }, []);
 
   const handleAgentBack = useCallback((title: string) => {
-    handleRemoveAgent(title);
-  }, [handleRemoveAgent]);
+    // If multiple agents are active, just collapse the completed one instead of removing it
+    // This keeps the combined checkout summary in sync
+    if (activeAgents.length > 1) {
+      setActiveAgents((prev) =>
+        prev.map((a) => (a.title === title ? { ...a, collapsed: true } : a))
+      );
+    } else {
+      handleRemoveAgent(title);
+    }
+  }, [activeAgents.length, handleRemoveAgent]);
 
   const handleExecuteAll = useCallback(() => {
     const summary = activeAgents.map((a) => a.title).join(", ");
