@@ -232,9 +232,22 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
         const now = performance.now();
 
         if (rms >= RMS_SPEECH_THRESHOLD) {
+          if (!speechDetected) firstSpeechAt = now;
           speechDetected = true;
           lastSpeechAtRef.current = now;
         } else if (speechDetected && lastSpeechAtRef.current && now - lastSpeechAtRef.current >= silenceTimeout) {
+          // Only transcribe if speech lasted long enough
+          const speechDuration = firstSpeechAt ? (lastSpeechAtRef.current - firstSpeechAt) : 0;
+          if (speechDuration < MIN_SPEECH_DURATION_MS) {
+            // Too short — discard
+            if (mediaRecorderRef.current?.state === "recording") {
+              mediaRecorderRef.current.stop();
+            }
+            setIsListening(false);
+            setTranscript("");
+            setInterimTranscript("");
+            return;
+          }
           stopRecording();
           return;
         }
