@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { MessageCircle, LayoutDashboard } from "lucide-react";
 import { TopBar } from "@/components/agent/TopBar";
-import { ConversationPanel, ConversationPanelHandle } from "@/components/agent/ConversationPanel";
+import { ConversationPanel, ConversationPanelHandle, QuickOption } from "@/components/agent/ConversationPanel";
 import { AgentPanel } from "@/components/agent/AgentPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CustomerData, TimelineEvent, CustomerUpdate, DEFAULT_CUSTOMER, DEFAULT_TIMELINE } from "@/types/customer";
