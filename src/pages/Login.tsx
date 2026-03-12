@@ -25,11 +25,25 @@ const Login = ({ onAuthenticated }: LoginProps) => {
       return;
     }
     sessionStorage.setItem("demo_auth_email", trimmed);
-    // Log the login attempt
-    supabase.from("login_audit_log").insert({
-      email: trimmed,
-      user_agent: navigator.userAgent,
-    }).then(() => {});
+    // Log the login attempt with IP-based location
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((geo) => {
+        supabase.from("login_audit_log").insert({
+          email: trimmed,
+          user_agent: navigator.userAgent,
+          ip_address: geo.ip || null,
+          location: geo.city && geo.country_name
+            ? `${geo.city}, ${geo.region || ""}, ${geo.country_name}`.replace(", ,", ",")
+            : null,
+        }).then(() => {});
+      })
+      .catch(() => {
+        supabase.from("login_audit_log").insert({
+          email: trimmed,
+          user_agent: navigator.userAgent,
+        }).then(() => {});
+      });
     onAuthenticated();
   };
 
