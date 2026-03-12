@@ -25,17 +25,14 @@ const Login = ({ onAuthenticated }: LoginProps) => {
       return;
     }
     sessionStorage.setItem("demo_auth_email", trimmed);
-    // Log the login attempt with IP-based location
-    fetch("https://ipapi.co/json/")
-      .then((res) => res.json())
-      .then((geo) => {
+    // Log the login attempt with IP-based location via edge function
+    supabase.functions.invoke("get-client-info")
+      .then(({ data }) => {
         supabase.from("login_audit_log").insert({
           email: trimmed,
           user_agent: navigator.userAgent,
-          ip_address: geo.ip || null,
-          location: geo.city && geo.country_name
-            ? `${geo.city}, ${geo.region || ""}, ${geo.country_name}`.replace(", ,", ",")
-            : null,
+          ip_address: data?.ip || null,
+          location: data?.location || null,
         }).then(() => {});
       })
       .catch(() => {
