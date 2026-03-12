@@ -147,7 +147,13 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
           channelCount: 1,
         },
       });
+      if (startRequestIdRef.current !== requestId) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
       streamRef.current = stream;
+      setInterimTranscript("Listening...");
 
       const audioCtx = new AudioContext();
       audioCtxRef.current = audioCtx;
