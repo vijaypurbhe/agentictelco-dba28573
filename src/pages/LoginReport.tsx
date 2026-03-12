@@ -14,6 +14,8 @@ interface LoginEntry {
   email: string;
   logged_in_at: string;
   user_agent: string | null;
+  ip_address: string | null;
+  location: string | null;
 }
 
 const LoginReport = () => {
