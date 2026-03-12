@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { MessageCircle, LayoutDashboard } from "lucide-react";
 import { TopBar } from "@/components/agent/TopBar";
-import { ConversationPanel, ConversationPanelHandle } from "@/components/agent/ConversationPanel";
+import { ConversationPanel, ConversationPanelHandle, QuickOption } from "@/components/agent/ConversationPanel";
 import { AgentPanel } from "@/components/agent/AgentPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CustomerData, TimelineEvent, CustomerUpdate, DEFAULT_CUSTOMER, DEFAULT_TIMELINE } from "@/types/customer";
@@ -15,6 +15,7 @@ const Index = () => {
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
   const [detectedAction, setDetectedAction] = useState<string | null>(null);
   const [detectedOption, setDetectedOption] = useState<string | null>(null);
+  const [dynamicQuickOptions, setDynamicQuickOptions] = useState<QuickOption[] | null>(null);
   const [conversationTurn, setConversationTurn] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => !!sessionStorage.getItem("demo_auth_email")
@@ -43,6 +44,10 @@ const Index = () => {
     setDetectedOption(optionId);
   }, []);
 
+  const handleQuickOptionsDetected = useCallback((options: QuickOption[]) => {
+    setDynamicQuickOptions(options);
+  }, []);
+
   if (!isAuthenticated) {
     return <Login onAuthenticated={() => setIsAuthenticated(true)} />;
   }
@@ -54,20 +59,20 @@ const Index = () => {
       {!isMobile ? (
         <div className="flex flex-1 overflow-hidden">
           <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
-            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} />
+            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} onQuickOptionsDetected={handleQuickOptionsDetected} />
           </div>
           <div className="flex-1 flex flex-col">
-            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} />
+            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} dynamicQuickOptions={dynamicQuickOptions} />
           </div>
         </div>
       ) : (
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             <div className={`absolute inset-0 ${activeTab === "chat" ? "" : "invisible"}`}>
-              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} />
+              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} onQuickOptionsDetected={handleQuickOptionsDetected} />
             </div>
             <div className={`absolute inset-0 ${activeTab === "agent" ? "" : "invisible"}`}>
-              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} />
+              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} dynamicQuickOptions={dynamicQuickOptions} />
             </div>
           </div>
 

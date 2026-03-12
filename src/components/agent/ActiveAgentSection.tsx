@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { QuickOption } from "./ConversationPanel";
 import { ChevronDown, X, CheckCircle2 } from "lucide-react";
 import {
   TrendingUp, Zap, Gift, Smartphone, Wifi, Shield, Receipt, Power, Users,
@@ -38,6 +39,7 @@ interface ActiveAgentSectionProps {
   actionTitle: string;
   currentStep: number;
   customer: CustomerData;
+  dynamicQuickOptions?: QuickOption[] | null;
   externalOptionId?: string | null;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
@@ -51,6 +53,7 @@ export function ActiveAgentSection({
   actionTitle,
   currentStep,
   customer,
+  dynamicQuickOptions,
   externalOptionId,
   isCollapsed,
   onToggleCollapse,
@@ -130,6 +133,7 @@ export function ActiveAgentSection({
             <div className="px-4 pb-4 space-y-4">
               <QuickSelectCard
                 actionTitle={actionTitle}
+                dynamicOptions={dynamicQuickOptions}
                 externalSelectedId={externalOptionId}
                 onSelect={onOptionSelect}
               />

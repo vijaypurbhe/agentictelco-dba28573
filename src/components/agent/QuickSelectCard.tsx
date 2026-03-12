@@ -24,6 +24,7 @@ interface QuickSelectCardProps {
   actionTitle: string;
   onSelect: (prompt: string) => void;
   externalSelectedId?: string | null;
+  dynamicOptions?: QuickOption[] | null;
 }
 
 const actionOptions: Record<string, QuickOption[]> = {
@@ -107,9 +108,9 @@ const selectPrompts: Record<string, (option: QuickOption) => string> = {
     `Process multi-line action: ${o.label}. Details: ${o.sublabel}. Cost: ${o.price}. Execute the line change and confirm updated account details.`,
 };
 
-export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId }: QuickSelectCardProps) {
+export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dynamicOptions }: QuickSelectCardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const options = actionOptions[actionTitle] || [];
+  const options = dynamicOptions && dynamicOptions.length > 0 ? dynamicOptions : (actionOptions[actionTitle] || []);
 
   // Sync external selection from voice/typed input
   useEffect(() => {
@@ -117,12 +118,26 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId }: Q
       setSelectedId(externalSelectedId);
     }
   }, [externalSelectedId, options]);
+
+  // Reset selection when dynamic options change
+  useEffect(() => {
+    if (dynamicOptions && dynamicOptions.length > 0) {
+      setSelectedId(null);
+    }
+  }, [dynamicOptions]);
+
   const Icon = actionIcons[actionTitle] || TrendingUp;
   const promptBuilder = selectPrompts[actionTitle];
 
   const handleSelect = (option: QuickOption) => {
     setSelectedId(option.id);
-    if (promptBuilder) onSelect(promptBuilder(option));
+    // For dynamic options, build a generic prompt; for hardcoded, use the specific builder
+    if (dynamicOptions && dynamicOptions.length > 0) {
+      const prompt = `The customer has selected "${option.label}" (${option.sublabel}) at ${option.price || "N/A"}. Process this selection now. Confirm the details and next steps.`;
+      onSelect(prompt);
+    } else if (promptBuilder) {
+      onSelect(promptBuilder(option));
+    }
   };
 
   return (

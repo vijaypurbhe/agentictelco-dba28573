@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { QuickOption } from "./ConversationPanel";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -62,9 +63,10 @@ interface AgentPanelProps {
   externalAction?: string | null;
   externalOption?: string | null;
   conversationTurn?: number;
+  dynamicQuickOptions?: QuickOption[] | null;
 }
 
-export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0 }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0, dynamicQuickOptions }: AgentPanelProps) {
   const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([]);
   const lastExternalActionRef = useRef<string | null>(null);
 
@@ -256,6 +258,9 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
               actionTitle={agent.title}
               currentStep={agent.step}
               customer={customer}
+              dynamicQuickOptions={
+                externalAction === agent.title ? dynamicQuickOptions : null
+              }
               externalOptionId={
                 externalOption && externalAction === agent.title ? externalOption : null
               }
