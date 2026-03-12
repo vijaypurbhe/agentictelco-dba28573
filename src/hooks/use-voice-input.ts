@@ -206,6 +206,7 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       setIsListening(true);
 
       let speechDetected = false;
+      let firstSpeechAt: number | null = null;
       const startedAt = performance.now();
       const pcmData = new Uint8Array(analyser.fftSize);
 
