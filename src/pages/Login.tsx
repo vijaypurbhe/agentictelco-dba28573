@@ -64,7 +64,7 @@ const Login = ({ onAuthenticated }: LoginProps) => {
             <Shield className="w-6 h-6 text-primary" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            AT&T Agent Assist
+            Telco Agent Assist
           </h1>
           <p className="text-sm text-muted-foreground">
             Enter your Tech Mahindra email to access the demo
