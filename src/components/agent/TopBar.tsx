@@ -14,7 +14,7 @@ export function TopBar() {
           <Globe className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h1 className="font-bold text-base text-foreground tracking-tight">AT&T Agent Assist</h1>
+          <h1 className="font-bold text-base text-foreground tracking-tight">Telco Agent Assist</h1>
           <p className="text-xs text-muted-foreground">Agentic Enterprise Platform</p>
         </div>
       </div>

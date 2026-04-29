@@ -1,8 +1,8 @@
-# AT&T Agent Assist — Feature Documentation & Testing Guide
+# Telco Agent Assist — Feature Documentation & Testing Guide
 
 ## Overview
 
-AT&T Agent Assist is an **Agentic Enterprise Platform** that helps customer service representatives handle wireless/telecom customer interactions using AI-powered multi-agent orchestration. The application features a split-panel interface: a **Conversation Panel** (AI chat) on the left and a **Multi-Agent Panel** on the right.
+Telco Agent Assist is an **Agentic Enterprise Platform** that helps customer service representatives handle wireless/telecom customer interactions using AI-powered multi-agent orchestration. The application features a split-panel interface: a **Conversation Panel** (AI chat) on the left and a **Multi-Agent Panel** on the right.
 
 ---
 
@@ -11,7 +11,7 @@ AT&T Agent Assist is an **Agentic Enterprise Platform** that helps customer serv
 ```text
 ┌──────────────────────────────────────────────────────┐
 │                     TopBar                           │
-│  [AT&T Agent Assist]         [AI Active] [Enterprise]│
+│  [Telco Agent Assist]         [AI Active] [Enterprise]│
 ├────────────────────┬─────────────────────────────────┤
 │  Conversation      │  Agent Panel                    │
 │  Panel (420px)     │                                 │
