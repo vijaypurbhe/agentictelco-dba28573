@@ -15,6 +15,7 @@ const Index = () => {
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
   const [detectedAction, setDetectedAction] = useState<string | null>(null);
   const [detectedOption, setDetectedOption] = useState<string | null>(null);
+  const [recommendedAction, setRecommendedAction] = useState<string | null>(null);
   const [dynamicQuickOptions, setDynamicQuickOptions] = useState<QuickOption[] | null>(null);
   const [conversationTurn, setConversationTurn] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -48,6 +49,10 @@ const Index = () => {
     setDynamicQuickOptions(options);
   }, []);
 
+  const handleRecommendationDetected = useCallback((actionTitle: string | null) => {
+    setRecommendedAction(actionTitle);
+  }, []);
+
   if (!isAuthenticated) {
     return <Login onAuthenticated={() => setIsAuthenticated(true)} />;
   }
@@ -59,20 +64,20 @@ const Index = () => {
       {!isMobile ? (
         <div className="flex flex-1 overflow-hidden">
           <div className="w-[420px] border-r border-border/50 flex flex-col shrink-0">
-            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} onQuickOptionsDetected={handleQuickOptionsDetected} />
+            <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} onQuickOptionsDetected={handleQuickOptionsDetected} onRecommendationDetected={handleRecommendationDetected} />
           </div>
           <div className="flex-1 flex flex-col">
-            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} dynamicQuickOptions={dynamicQuickOptions} />
+            <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} dynamicQuickOptions={dynamicQuickOptions} recommendedAction={recommendedAction} />
           </div>
         </div>
       ) : (
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             <div className={`absolute inset-0 ${activeTab === "chat" ? "" : "invisible"}`}>
-              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} onQuickOptionsDetected={handleQuickOptionsDetected} />
+              <ConversationPanel ref={conversationRef} customer={customer} onCustomerUpdate={handleCustomerUpdate} onActionDetected={handleActionDetected} onOptionDetected={handleOptionDetected} onMessageSent={handleMessageSent} onQuickOptionsDetected={handleQuickOptionsDetected} onRecommendationDetected={handleRecommendationDetected} />
             </div>
             <div className={`absolute inset-0 ${activeTab === "agent" ? "" : "invisible"}`}>
-              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} dynamicQuickOptions={dynamicQuickOptions} />
+              <AgentPanel onActionClick={handleActionClick} customer={customer} timeline={timeline} externalAction={detectedAction} externalOption={detectedOption} conversationTurn={conversationTurn} dynamicQuickOptions={dynamicQuickOptions} recommendedAction={recommendedAction} />
             </div>
           </div>
 
