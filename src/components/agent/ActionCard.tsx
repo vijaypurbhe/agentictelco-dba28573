@@ -57,7 +57,7 @@ export function ActionCard({ icon: Icon, title, description, tag, tagColor = "pr
           whileTap={{ y: 2, scale: 0.99 }}
           onClick={onClick}
           aria-label={`${title}. ${tooltip}`}
-          className={`menu-tile p-5 text-left w-full group cursor-pointer min-h-[140px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+          className={`menu-tile relative p-5 text-left w-full group cursor-pointer min-h-[140px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             recommended
               ? "border-accent ring-2 ring-accent/60 bg-accent/10"
               : "hover:border-primary"
