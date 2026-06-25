@@ -13,6 +13,19 @@ import {
   Sparkles,
 } from "lucide-react";
 import { actionEmoji, pickOptionEmoji } from "@/lib/action-emoji";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+const optionOutcomes: Record<string, string> = {
+  "Plan Upgrade": "switch the customer to this plan and update next month's bill",
+  "Add-On Bundle": "attach this add-on and confirm activation",
+  "Loyalty Reward": "apply this reward and confirm when it takes effect",
+  "Device Trade-In": "order this device with trade-in credit and schedule delivery",
+  "Home Internet Bundle": "add this home internet plan with bundle discount and book setup",
+  "Premium Support": "activate this support tier immediately",
+  "Billing Dispute": "post this adjustment to the next billing cycle",
+  "Account Suspend/Reactivate": "execute this account action and confirm service status",
+  "Multi-Line Management": "apply this line change and update the account total",
+};
 
 
 interface QuickOption {
