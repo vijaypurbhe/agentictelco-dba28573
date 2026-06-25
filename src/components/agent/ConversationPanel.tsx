@@ -5,7 +5,7 @@ import { ChatMessage } from "./ChatMessage";
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { CustomerData, CustomerUpdate } from "@/types/customer";
-import { detectFullIntent } from "@/lib/intent-detection";
+import { detectFullIntent, detectActionIntent } from "@/lib/intent-detection";
 
 type Msg = { role: "user" | "assistant" | "system"; content: string; timestamp: string };
 
@@ -56,10 +56,11 @@ interface ConversationPanelProps {
   onOptionDetected?: (optionId: string) => void;
   onMessageSent?: () => void;
   onQuickOptionsDetected?: (options: QuickOption[]) => void;
+  onRecommendationDetected?: (actionTitle: string | null) => void;
 }
 
 export const ConversationPanel = forwardRef<ConversationPanelHandle, ConversationPanelProps>(
-  ({ customer, onCustomerUpdate, onActionDetected, onOptionDetected, onMessageSent, onQuickOptionsDetected }, ref) => {
+  ({ customer, onCustomerUpdate, onActionDetected, onOptionDetected, onMessageSent, onQuickOptionsDetected, onRecommendationDetected }, ref) => {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "system",
