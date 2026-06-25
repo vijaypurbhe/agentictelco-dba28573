@@ -142,6 +142,7 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
     setIsLoading(true);
     customerUpdateApplied.current = false;
     let quickOptionsApplied = false;
+    let lastRecommended: string | null = null;
 
     const apiMessages = updatedMessages
       .filter((m) => m.role !== "system")
@@ -185,6 +186,13 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
           onQuickOptionsDetected?.(quickOpts);
         }
         const displayContent = c2 || c1 || content;
+
+        // Detect which agent the AI is recommending so the UI can highlight it
+        const recommended = detectActionIntent(displayContent);
+        if (recommended && recommended !== lastRecommended) {
+          lastRecommended = recommended;
+          onRecommendationDetected?.(recommended);
+        }
 
         const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         setMessages((prev) => {
