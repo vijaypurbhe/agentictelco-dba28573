@@ -188,41 +188,50 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
           const isSelected = selectedId === option.id;
           const isRecommended = option.highlight && !selectedId;
           const emoji = pickOptionEmoji(option.id, option.label);
+          const outcome = optionOutcomes[actionTitle] || "process this selection and confirm next steps";
+          const tooltip = `Pick ${option.label}${option.price ? ` (${option.price})` : ""} — ${option.sublabel}; the agent will ${outcome}.`;
 
           return (
-            <motion.button
-              key={option.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-              onClick={() => handleSelect(option)}
-              className={`menu-tile relative flex flex-col items-center text-center gap-1.5 p-4 pt-5 min-h-[150px] ${
-                isSelected
-                  ? "bg-primary/10 border-primary"
-                  : isRecommended
-                  ? "bg-accent/20 border-accent"
-                  : "hover:border-primary/60"
-              }`}
-            >
-              {option.highlight && !selectedId && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-primary text-primary-foreground font-display uppercase tracking-wider shadow-md">
-                  ★ Best
-                </span>
-              )}
-              {isSelected && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-success text-success-foreground font-display uppercase tracking-wider shadow-md">
-                  ✓ Picked
-                </span>
-              )}
-              <span className="text-4xl leading-none mb-1" aria-hidden>{emoji}</span>
-              <span className="font-display text-sm text-foreground leading-tight">{option.label}</span>
-              {option.price && (
-                <span className={`font-display text-base ${isSelected ? "text-primary" : isRecommended ? "text-primary" : "text-foreground"}`}>
-                  {option.price}
-                </span>
-              )}
-              <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
-            </motion.button>
+            <Tooltip key={option.id}>
+              <TooltipTrigger asChild>
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  onClick={() => handleSelect(option)}
+                  aria-label={tooltip}
+                  className={`menu-tile relative flex flex-col items-center text-center gap-1.5 p-4 pt-5 min-h-[150px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                    isSelected
+                      ? "bg-primary/10 border-primary"
+                      : isRecommended
+                      ? "bg-accent/20 border-accent"
+                      : "hover:border-primary/60"
+                  }`}
+                >
+                  {option.highlight && !selectedId && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-primary text-primary-foreground font-display uppercase tracking-wider shadow-md">
+                      ★ Best
+                    </span>
+                  )}
+                  {isSelected && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-success text-success-foreground font-display uppercase tracking-wider shadow-md">
+                      ✓ Picked
+                    </span>
+                  )}
+                  <span className="text-4xl leading-none mb-1" aria-hidden>{emoji}</span>
+                  <span className="font-display text-sm text-foreground leading-tight">{option.label}</span>
+                  {option.price && (
+                    <span className={`font-display text-base ${isSelected ? "text-primary" : isRecommended ? "text-primary" : "text-foreground"}`}>
+                      {option.price}
+                    </span>
+                  )}
+                  <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
+                </motion.button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs text-sm leading-snug">
+                {tooltip}
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </div>
