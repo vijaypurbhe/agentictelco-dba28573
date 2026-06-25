@@ -64,9 +64,10 @@ interface AgentPanelProps {
   externalOption?: string | null;
   conversationTurn?: number;
   dynamicQuickOptions?: QuickOption[] | null;
+  recommendedAction?: string | null;
 }
 
-export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0, dynamicQuickOptions }: AgentPanelProps) {
+export function AgentPanel({ onActionClick, customer, timeline, externalAction, externalOption, conversationTurn = 0, dynamicQuickOptions, recommendedAction }: AgentPanelProps) {
   const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([]);
   const lastExternalActionRef = useRef<string | null>(null);
 
@@ -223,21 +224,27 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
                 {actions.map((action) => {
                   const Icon = action.icon;
                   const isActive = activeActionTitles.includes(action.title);
+                  const isRecommended = recommendedAction === action.title && !isActive;
                   return (
                     <motion.button
                       key={action.title}
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.96 }}
+                      animate={isRecommended ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+                      transition={isRecommended ? { duration: 1.6, repeat: Infinity } : undefined}
                       onClick={() => handleAction(action.title)}
                       className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all border min-h-[40px] ${
                         isActive
                           ? "bg-primary/15 border-primary/40 text-primary shadow-sm"
+                          : isRecommended
+                          ? "bg-accent/30 border-accent text-accent-foreground shadow-md ring-2 ring-accent/60"
                           : "bg-muted/40 border-border/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
                       {action.agentName}
                       {isActive && <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                      {isRecommended && <Sparkles className="w-3.5 h-3.5 animate-pulse" />}
                     </motion.button>
                   );
                 })}
@@ -251,7 +258,13 @@ export function AgentPanel({ onActionClick, customer, timeline, externalAction, 
                 className="grid grid-cols-1 sm:grid-cols-3 gap-4"
               >
                 {actions.map((action, i) => (
-                  <ActionCard key={action.title} {...action} delay={i} onClick={() => handleAction(action.title)} />
+                  <ActionCard
+                    key={action.title}
+                    {...action}
+                    delay={i}
+                    onClick={() => handleAction(action.title)}
+                    recommended={recommendedAction === action.title}
+                  />
                 ))}
               </motion.div>
             )}
