@@ -12,6 +12,8 @@ import {
   Users,
   Sparkles,
 } from "lucide-react";
+import { actionEmoji, pickOptionEmoji } from "@/lib/action-emoji";
+
 
 interface QuickOption {
   id: string;
@@ -149,21 +151,21 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
       className="glass-panel p-5 space-y-4"
     >
       <div className="flex items-center gap-3 mb-1">
-        <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-primary" />
+        <div className="w-12 h-12 rounded-2xl bg-accent/40 flex items-center justify-center text-3xl">
+          {actionEmoji[actionTitle] || <Icon className="w-6 h-6 text-primary" />}
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-foreground">Pick one option below</h3>
-          <p className="text-xs text-muted-foreground">Tap to proceed with the customer</p>
+          <h3 className="font-display text-base text-foreground leading-tight">Pick one option</h3>
+          <p className="text-xs text-muted-foreground">Tap a card to continue with the customer</p>
         </div>
         {isDynamic && (
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/15 border border-accent/30 text-accent text-[11px] font-bold uppercase tracking-wider"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-[11px] font-display uppercase tracking-wider"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            AI Recommended
+            AI Picks
           </motion.span>
         )}
       </div>
@@ -172,6 +174,7 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
         {options.map((option, i) => {
           const isSelected = selectedId === option.id;
           const isRecommended = option.highlight && !selectedId;
+          const emoji = pickOptionEmoji(option.id, option.label);
 
           return (
             <motion.button
@@ -180,31 +183,32 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
               onClick={() => handleSelect(option)}
-              className={`relative flex flex-col items-center text-center gap-2 p-4 rounded-xl transition-all group hover:scale-[1.03] active:scale-[0.97] min-h-[110px] ${
+              className={`menu-tile relative flex flex-col items-center text-center gap-1.5 p-4 pt-5 min-h-[150px] ${
                 isSelected
-                  ? "bg-primary/15 border-2 border-primary shadow-md shadow-primary/10 ring-2 ring-primary/20"
+                  ? "bg-primary/10 border-primary"
                   : isRecommended
-                  ? "bg-primary/10 border-2 border-primary/40 shadow-md shadow-primary/10"
-                  : "bg-muted/50 border border-border/50 hover:bg-muted/70 hover:border-border"
+                  ? "bg-accent/20 border-accent"
+                  : "hover:border-primary/60"
               }`}
             >
               {option.highlight && !selectedId && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-3 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
-                  Best
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-primary text-primary-foreground font-display uppercase tracking-wider shadow-md">
+                  ★ Best
                 </span>
               )}
               {isSelected && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-3 py-0.5 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-wider">
-                  Selected
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-success text-success-foreground font-display uppercase tracking-wider shadow-md">
+                  ✓ Picked
                 </span>
               )}
+              <span className="text-4xl leading-none mb-1" aria-hidden>{emoji}</span>
+              <span className="font-display text-sm text-foreground leading-tight">{option.label}</span>
               {option.price && (
-                <span className={`text-lg font-bold mt-1 ${isSelected || isRecommended ? "text-primary" : "text-foreground"}`}>
+                <span className={`font-display text-base ${isSelected ? "text-primary" : isRecommended ? "text-primary" : "text-foreground"}`}>
                   {option.price}
                 </span>
               )}
-              <span className="text-sm font-bold text-foreground leading-tight">{option.label}</span>
-              <p className="text-xs text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
+              <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">{option.sublabel}</p>
             </motion.button>
           );
         })}
@@ -212,3 +216,4 @@ export function QuickSelectCard({ actionTitle, onSelect, externalSelectedId, dyn
     </motion.div>
   );
 }
+
