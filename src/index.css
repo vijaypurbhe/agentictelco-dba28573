@@ -129,40 +129,42 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Hind', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     background-image:
-      radial-gradient(circle at 0% 0%, hsl(45 100% 51% / 0.10), transparent 40%),
-      radial-gradient(circle at 100% 100%, hsl(4 78% 48% / 0.06), transparent 40%);
+      radial-gradient(circle at 0% 0%, hsl(198 100% 44% / 0.08), transparent 45%),
+      radial-gradient(circle at 100% 100%, hsl(215 85% 22% / 0.06), transparent 45%);
   }
 
   h1, h2, h3, h4, .font-display {
-    font-family: 'Archivo Black', 'Hind', system-ui, sans-serif;
-    letter-spacing: -0.01em;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.015em;
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-card border-2 border-border rounded-2xl;
+    @apply bg-card border border-border rounded-xl;
     box-shadow: var(--shadow-card);
   }
 
   .glass-panel-strong {
-    @apply bg-card border-2 border-border rounded-2xl;
+    @apply bg-card border border-border rounded-xl;
     box-shadow: var(--shadow-card);
   }
 
   .menu-tile {
-    @apply bg-card border-2 border-border rounded-2xl transition-transform;
+    @apply bg-card border border-border rounded-xl transition-transform;
     box-shadow: var(--shadow-tile);
   }
   .menu-tile:hover {
     transform: translateY(-2px);
   }
   .menu-tile:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 hsl(4 78% 30% / 0.18), 0 4px 10px -6px hsl(0 0% 0% / 0.18);
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 hsl(212 50% 12% / 0.06), 0 4px 10px -6px hsl(212 50% 12% / 0.18);
   }
+
 
   .glow-border {
     box-shadow: var(--shadow-glow);
