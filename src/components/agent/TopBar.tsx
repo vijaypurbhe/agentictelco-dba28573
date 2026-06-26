@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Globe } from "lucide-react";
+import telephonyIcon from "@/assets/telephony-icon.png";
 import { ThemeToggle } from "./ThemeToggle";
+
 
 export function TopBar() {
   return (
@@ -10,8 +11,14 @@ export function TopBar() {
       className="h-16 border-b border-border bg-card flex items-center justify-between px-6"
     >
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-sm">
-          <Globe className="w-5 h-5 text-primary-foreground" strokeWidth={2.25} />
+        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-sm overflow-hidden">
+          <img
+            src={telephonyIcon}
+            alt="Telephony"
+            width={40}
+            height={40}
+            className="w-8 h-8 object-contain"
+          />
         </div>
         <div>
           <h1 className="font-display text-lg text-foreground tracking-tight leading-none">
