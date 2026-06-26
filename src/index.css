@@ -2,9 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fast-food inspired "Golden Arches" palette:
-   bold tomato red + sunshine yellow on warm cream,
-   chunky rounded tiles, easy to scan for entry-level agents. */
+/* AT&T-inspired palette:
+   signature AT&T blue (#00A8E0 / #009FDB) with deep navy,
+   clean white surfaces, restrained corners for a telco-grade feel. */
+
 
 @layer base {
   :root {
