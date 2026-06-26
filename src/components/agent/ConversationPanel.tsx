@@ -67,6 +67,11 @@ export const ConversationPanel = forwardRef<ConversationPanelHandle, Conversatio
       content: `Connected to ${customer.name} (${customer.accountId}). Customer is on ${customer.plan} plan. High data usage detected — potential upsell opportunity.`,
       timestamp: "10:32 AM",
     },
+    {
+      role: "assistant",
+      content: `Based on ${customer.name}'s profile, I recommend starting with a **Plan Upgrade**.\n\n- Data usage is at **${customer.dataPercent}%** of the ${customer.plan} cap — overage risk this cycle\n- **${customer.tenure}** tenure with low churn risk — strong upgrade candidate\n- Current ARPU **${customer.arpu}** → moving to Unlimited Premium lifts ARPU by ~$15/mo\n\nThe **Plan Upgrade** agent is highlighted on the right — open it when you're ready, or ask me anything first.`,
+      timestamp: "10:32 AM",
+    },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
