@@ -15,7 +15,8 @@ const Index = () => {
   const [timeline, setTimeline] = useState<TimelineEvent[]>(DEFAULT_TIMELINE);
   const [detectedAction, setDetectedAction] = useState<string | null>(null);
   const [detectedOption, setDetectedOption] = useState<string | null>(null);
-  const [recommendedAction, setRecommendedAction] = useState<string | null>(null);
+  // Seed initial recommendation based on default customer signals (high data usage @ 81% + 3yr tenure → Plan Upgrade)
+  const [recommendedAction, setRecommendedAction] = useState<string | null>("Plan Upgrade");
   const [dynamicQuickOptions, setDynamicQuickOptions] = useState<QuickOption[] | null>(null);
   const [conversationTurn, setConversationTurn] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(
