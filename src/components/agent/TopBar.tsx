@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Globe } from "lucide-react";
+import telephonyIcon from "@/assets/telephony-icon.png";
 import { ThemeToggle } from "./ThemeToggle";
+
 
 export function TopBar() {
   return (
