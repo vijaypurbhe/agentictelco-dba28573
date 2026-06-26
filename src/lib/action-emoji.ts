@@ -1,17 +1,9 @@
-// Big friendly emoji used as quick-recognition artwork on tiles
-// (similar to fast-food menu boards where each item gets a picture).
+// Action tiles use Lucide icons (passed via ActionCard `icon` prop) for an
+// AT&T-style clean iconography. Leave the emoji map empty so the Lucide icon
+// is rendered instead of a picture-menu emoji.
 
-export const actionEmoji: Record<string, string> = {
-  "Plan Upgrade": "📶",
-  "Add-On Bundle": "🎁",
-  "Loyalty Reward": "⭐",
-  "Device Trade-In": "📱",
-  "Home Internet Bundle": "🏠",
-  "Premium Support": "🛟",
-  "Billing Dispute": "🧾",
-  "Account Suspend/Reactivate": "🔌",
-  "Multi-Line Management": "👨‍👩‍👧",
-};
+export const actionEmoji: Record<string, string> = {};
+
 
 // Emoji used inside each QuickSelectCard option, keyed by option id.
 export const optionEmoji: Record<string, string> = {
