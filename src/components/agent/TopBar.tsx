@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import telephonyIcon from "@/assets/telephony-icon.png";
+import { Smartphone } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 
@@ -12,13 +12,7 @@ export function TopBar() {
     >
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-sm overflow-hidden">
-          <img
-            src={telephonyIcon}
-            alt="Telephony"
-            width={40}
-            height={40}
-            className="w-8 h-8 object-contain"
-          />
+          <Smartphone className="w-6 h-6 text-primary-foreground" />
         </div>
         <div>
           <h1 className="font-display text-lg text-foreground tracking-tight leading-none">
